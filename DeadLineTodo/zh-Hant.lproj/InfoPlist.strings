@@ -1,0 +1,8 @@
+/* 
+  InfoPlist.strings
+  DeadLineTodo
+
+  Created by Andy on 2024/4/27.
+  
+*/
+NSRemindersFullAccessUsageDescription = "否則無法將任務同步到提醒事項";

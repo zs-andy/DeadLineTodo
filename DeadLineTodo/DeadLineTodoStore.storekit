@@ -1,0 +1,212 @@
+{
+  "identifier" : "7E1CF4D0",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "2.99",
+      "familyShareable" : true,
+      "internalID" : "6482349950",
+      "localizations" : [
+        {
+          "description" : "购买高级功能，让DeadLineTodo可视化你的进步！",
+          "displayName" : "永久购买高级功能",
+          "locale" : "zh_CN"
+        },
+        {
+          "description" : "Visualize your progress with DeadLineTodo!",
+          "displayName" : "Purchase premium features",
+          "locale" : "en_GB"
+        }
+      ],
+      "productID" : "andy.deadlinetodo.premium",
+      "referenceName" : "Premium Features",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6477158822",
+    "_developerTeamID" : "N9DDMY3PQ3",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 737719704.49321198,
+    "_locale" : "en_GB",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : {
+          "index" : 2,
+          "type" : "generic"
+        },
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : {
+          "index" : 1,
+          "type" : "generic"
+        },
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : {
+          "index" : 1,
+          "type" : "generic"
+        },
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21480976",
+      "localizations" : [
+
+      ],
+      "name" : "Premium Features Subscription",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "7.99",
+          "familyShareable" : true,
+          "groupNumber" : 3,
+          "internalID" : "6499427166",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "訂閱高級功能，讓DeadLineTodo可視化你的行動！",
+              "displayName" : "連續訂閱年度高級功能",
+              "locale" : "zh_CN"
+            },
+            {
+              "description" : "订阅高级功能，让DeadLineTodo可视化你的行动！",
+              "displayName" : "连续订阅年度高级功能",
+              "locale" : "zh_CN"
+            },
+            {
+              "description" : "Let DeadLineTodo visualise your actions!",
+              "displayName" : "Subscribe to Annual Premium",
+              "locale" : "en_GB"
+            }
+          ],
+          "productID" : "andy.deadlinetodo.annual.subscription",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Premium Features Annual Subscription",
+          "subscriptionGroupID" : "21480976",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "0.99",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "6499418786",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "訂閱高級功能，讓DeadLineTodo可視化你的行動！",
+              "displayName" : "連續訂閱月度高級功能",
+              "locale" : "zh_CN"
+            },
+            {
+              "description" : "Let DeadLineTodo visualise your actions!",
+              "displayName" : "Subscribe to Monthly Premium",
+              "locale" : "en_GB"
+            },
+            {
+              "description" : "订阅高级功能，让DeadLineTodo可视化你的行动！",
+              "displayName" : "连续订阅月度高级功能",
+              "locale" : "zh_CN"
+            }
+          ],
+          "productID" : "andy.deadlinetodo.monthly.subscription",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Premium Features Monthly Subscription",
+          "subscriptionGroupID" : "21480976",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "1.99",
+          "familyShareable" : true,
+          "groupNumber" : 2,
+          "internalID" : "6499421132",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Let DeadLineTodo visualise your actions!",
+              "displayName" : "Subscribe to Quarterly Premium",
+              "locale" : "en_GB"
+            },
+            {
+              "description" : "訂閱高級功能，讓DeadLineTodo可視化你的行動！",
+              "displayName" : "連續訂閱季度高級功能",
+              "locale" : "zh_CN"
+            },
+            {
+              "description" : "订阅高级功能，让DeadLineTodo可视化你的行动！",
+              "displayName" : "连续订阅季度高级功能",
+              "locale" : "zh_CN"
+            }
+          ],
+          "productID" : "andy.deadlinetodo.quarterly.subscription",
+          "recurringSubscriptionPeriod" : "P3M",
+          "referenceName" : "Premium Features Quarterly Subscription",
+          "subscriptionGroupID" : "21480976",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

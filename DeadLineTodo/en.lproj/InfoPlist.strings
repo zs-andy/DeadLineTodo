@@ -1,0 +1,9 @@
+/* 
+  InfoPlist.strings
+  DeadLineTodo
+
+  Created by Andy on 2024/4/27.
+  
+*/
+
+NSRemindersFullAccessUsageDescription = "Otherwise tasks cannot be synchronised to reminders";

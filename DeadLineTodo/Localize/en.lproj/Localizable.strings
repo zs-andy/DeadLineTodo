@@ -1,0 +1,219 @@
+/* 
+  Localizable.strings
+  DeadLineTodo
+
+  Created by Andy on 2024/2/22.
+  
+*/
+
+"待" = "TO";
+"办" = "DO";
+
+"待办" = "Todo";
+
+"紧" = "RU";
+"急" = "SH";
+
+"紧急待办" = "Emergency";
+
+"完" = "DO";
+"成" = "NE";
+
+"已完成" = "Done";
+
+"统" = "DA";
+"计" = "TA";
+
+"统计" = "Statistic";
+
+"效率" = " ";
+
+"设置" = "Setting";
+
+"给DeadLineTodo进行评分" = "Rate DeadLineTodo";
+"欢迎在App Store反馈评价" = "Welcome to leave feedback and ratings on the App Store.";
+
+"鄂ICP备2024036893号-1A" = " ";
+
+"搜索" = "Search";
+"搜索任务" = "Search Tasks";
+
+"添加任务" = "Add Task";
+"请输入任务内容" = "Please enter the content";
+"输入任务内容" = "Enter the task content";
+
+"任务优先级" = "Priority";
+
+//["无","高","中","低"] = ["None", "High", "Medium", "Low"];
+
+"无" = "None";
+"高" = "High";
+"中" = "Medium";
+"低" = "Low";
+
+"开始日期" = "Start Date";
+"如果不做设置，默认开始日期为截止日期减去任务所需时间的两倍" = "The default start date, if not specified, is twice the duration of the task subtracted from the deadline.";
+"截止日期" = "Deadline";
+"所需时间：" = "Time Needed:";
+"天" = "Day";
+"时" = "Hour";
+"分" = "Min";
+
+"取消" = "Cancel";
+"确定" = "Confirm";
+
+"提醒" = "Reminder";
+"截止时间在过去" = "The deadline has passed.";
+"开始时间不在允许范围内" = "The start time is not within the allowed range.";
+"任务所需时间超过截止时间" = "The required time for the task exceeds the deadline.";
+
+"编辑任务" = "Edit Task";
+"任务重复周期" = "Task Repetition Cycle";
+
+"剩余所需时间" = "Remaining Time Needed";
+"截止日期" = "Deadline";
+"剩余时间" = "Remaining Time";
+
+"yyyy年MM月dd日" = "yyyy-MM-dd";
+"MM月dd日" = "MM-dd";
+
+"%lld天" = "%lldD";
+"%lld时" = "%lldH";
+"%lld分" = "%lldM";
+"%lld秒" = "%lldS";
+
+"完成时间" = "Completion Date";
+"实际完成时长" = "Actual Time Needed";
+
+"将截止" = "Near Deadline";
+"已截止" = "Past Due";
+"紧急！" = "Urgent!";
+"任务超时" = "Task Overrun";
+
+"已坚持%lld天" = "Persisted for %lld days";
+"已坚持%lld周" = "Persisted for %lld weeks";
+"已坚持%lld月" = "Persisted for %lld months";
+
+"正在进行" = "Doing";
+
+"这一周已完成%lld项任务" = "This week, %lld tasks have been completed.";
+"效率分数热力图" = "Heatmap of Efficiency Score";
+
+"周效率分数" = "Efficiency Score";
+"月效率分数" = "Efficiency Score";
+"年效率分数" = "Efficiency Score";
+
+"周" = "W";
+"月" = "M";
+"年" = "Y";
+
+"优先级" = "Priority";
+"添加日期" = "Add Date";
+"截止日期" = "Deadline";
+"开始日期" = "Start Date";
+
+"未完成" = "undo";
+
+"秒" = "Sec";
+"分钟" = "Min";
+"小时" = "Hour";
+
+"周累计完成时间" = "Cumulative Time";
+"月累计完成时间" = "Cumulative Time";
+"年累计完成时间" = "Cumulative Time";
+
+"已完成的任务" = "The task has been completed";
+"提醒事项同步" = "Reminder Sync";
+
+"今日没有任务" = "No tasks today";
+
+"每日待办" = "Daily Todo Widget";
+
+"展示你的每日待办和完成进度" = "Show your daily todo and progress.";
+
+"获取高级功能" = "Access Advanced Features";
+
+"购买高级功能解锁所有服务" = "Purchase premium features to unlock all services.";
+
+"高级功能" = "Premium Features";
+
+"购买DeadLineTodo高级功能" = "Purchase DeadlineTodo Premium Features";
+
+"即可永久解锁数据可视化统计、提醒事项同步和重复任务功能" = "for lifetime access to Data Visualization Statistics, Synchronization of Reminders and Repetitive Tasks.";
+
+"限时免费" = "Free";
+
+"恢复购买" = "Restore Purchases";
+
+"以上为样例数据" = "Above is sample data.";
+
+"购买高级功能" = "Access Advanced Features";
+
+"已获得DeadLineTodo高级功能" = "Premium features of DeadlineTodo acquired.";
+
+"永久享受数据可视化统计、提醒事项同步和重复任务功能" = "Enjoy permanent access to data visualization statistics, reminder synchronization and Repetitive Tasks functionality.";
+
+"恭喜" = "Congratulation";
+
+"您已经获取永久使用高级功能的权限" = "Premium features of DeadlineTodo has acquired.";
+
+"商品未加载" = "Product not loaded.";
+
+"购买高级功能解锁重复任务功能" = "Purchase Premium Features to unlock the Repeat Tasks feature.";
+
+"效率可视化统计" = "Efficiency Visualisation Statistics";
+
+"重复任务" = "Repetitive Tasks";
+
+"享受后续所有更新功能" = "Enjoy all subsequent updates.";
+
+"隐私政策" = "Privacy Policy";
+
+"否则无法将任务同步到提醒事项" = "Otherwise tasks cannot be synchronised to reminders.";
+
+"日历同步" = "Calendar Sync";
+
+"完成" = "Done";
+
+"选择日期和时间" = "Select Date and Time";
+
+"这周没有任务" = "No tasks this week.";
+
+"总时长" = "Total Time";
+
+"效率" = "Efficiency";
+
+"周完成时间差" = "Time Difference";
+
+"月完成时间差" = "Time Difference";
+
+"年完成时间差" = "Time Difference";
+
+"添加一个新任务" = "Add a New Task";
+
+"点击加号添加一个新任务" = "Tap the plus icon to add a new task.";
+
+"计划任务的开始日期" = "Set the Start Date";
+
+"选择开始执行任务的日期和时间" = "Select the date and time to start the task.";
+
+"计划任务的截止日期" = "Set the Deadline";
+
+"选择任务的截止日期和时间" = "Select the deadline date and time for the task.";
+
+"计划任务的所需时间" = "Set the Time Needed";
+
+"选择任务预估或计划所需时间" = "Select the estimated or planned time required for the task.";
+
+"恭喜你添加了第一个任务！" = "Congratulations, you've added your first task!";
+
+"提示：每个任务最左侧代表当前的时间，左右侧代表截止日期，粉色进度条的宽度代表任务所需时间，蓝色竖线是任务计划开始的时间。所以，粉色进度条会不断向右侧移动，蓝色竖线会不断向左移动。" = "Tip: The leftmost part of each task represents the current time, with the left and right sides indicating the deadline. The width of the pink progress bar represents the time required for the task, and the blue vertical line shows the planned start time of the task. As time progresses, the pink progress bar moves to the right, and the blue vertical line moves to the left.";
+
+"这里是紧急待办页面" = "Urgent Todo Page";
+
+"计划中已开始的任务将会显示在这里，尽快完成哦！" = "Tasks that have exceeded their planned start time will appear here. Be sure to complete them as soon as possible!";
+
+"周效率分数" = "Weekly Efficiency Score";
+
+"越快完成任务，效率分数越高" = "The faster you complete tasks, the higher your efficiency score.";
+

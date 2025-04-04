@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Premium Features</key>
+	<string>andy.deadlinetodo.premium</string>
+	<key>Premium Features Monthly Subscription</key>
+	<string>andy.deadlinetodo.monthly.subscription</string>
+	<key>Premium Features Quarterly Subscription</key>
+	<string>andy.deadlinetodo.quarterly.subscription</string>
+	<key>Premium Features Annual Subscription</key>
+	<string>andy.deadlinetodo.annual.subscription</string>
+</dict>
+</plist>
