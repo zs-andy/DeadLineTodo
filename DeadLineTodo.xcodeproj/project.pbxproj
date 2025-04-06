@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -59,6 +59,8 @@
 		A1A4BE302CFAEA5800B04E4D /* VersionSchemaV9.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A4BE2F2CFAEA5800B04E4D /* VersionSchemaV9.swift */; };
 		A1A4BE312CFAEA5800B04E4D /* VersionSchemaV9.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A4BE2F2CFAEA5800B04E4D /* VersionSchemaV9.swift */; };
 		A1DB8CC02B87898700031584 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1DB8CC22B87898700031584 /* Localizable.strings */; };
+		C504ED182DA2D3C500D7059E /* ReminderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C504ED162DA2D3C500D7059E /* ReminderService.swift */; };
+		C59CCB732DA2D2BB00406817 /* SwiftUIPullToRefresh in Frameworks */ = {isa = PBXBuildFile; productRef = C59CCB722DA2D2BB00406817 /* SwiftUIPullToRefresh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -133,6 +135,7 @@
 		A1A4BE2F2CFAEA5800B04E4D /* VersionSchemaV9.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionSchemaV9.swift; sourceTree = "<group>"; };
 		A1DB8CC12B87898700031584 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		A1DB8CC32B87898900031584 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C504ED162DA2D3C500D7059E /* ReminderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,6 +154,7 @@
 			files = (
 				A16D36F22D77140400AF3FD2 /* SwiftUIPullToRefresh in Frameworks */,
 				A15320FE2BC15BB000C69E56 /* StoreKit.framework in Frameworks */,
+				C59CCB732DA2D2BB00406817 /* SwiftUIPullToRefresh in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -193,6 +197,7 @@
 		A122C7DE2B57DDE8001BE346 /* DeadLineTodo */ = {
 			isa = PBXGroup;
 			children = (
+				C504ED172DA2D3C500D7059E /* Services */,
 				A1199ED02BAEF82A000C0A84 /* DeadLineTodo.entitlements */,
 				A1DB8CBD2B8788F400031584 /* Localize */,
 				A122C7DF2B57DDE8001BE346 /* DeadLineTodoApp.swift */,
@@ -262,6 +267,14 @@
 			path = Localize;
 			sourceTree = "<group>";
 		};
+		C504ED172DA2D3C500D7059E /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				C504ED162DA2D3C500D7059E /* ReminderService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -301,6 +314,7 @@
 			name = DeadLineTodo;
 			packageProductDependencies = (
 				A16D36F12D77140400AF3FD2 /* SwiftUIPullToRefresh */,
+				C59CCB722DA2D2BB00406817 /* SwiftUIPullToRefresh */,
 			);
 			productName = DeadLineTodo;
 			productReference = A19927E62B6789C200A1FBF2 /* DeadLineTodo.app */;
@@ -337,7 +351,7 @@
 			);
 			mainGroup = A122C7D32B57DDE8001BE346;
 			packageReferences = (
-				A16D36F02D77140400AF3FD2 /* XCLocalSwiftPackageReference "../../Downloads/swiftui-pull-to-refresh" */,
+				C59CCB712DA2D2BB00406817 /* XCRemoteSwiftPackageReference "swiftui-pull-to-refresh" */,
 			);
 			productRefGroup = A122C7D32B57DDE8001BE346;
 			projectDirPath = "";
@@ -401,6 +415,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A16A2C032C22CB3D00EF9667 /* VersionSchemaV7.swift in Sources */,
+				C504ED182DA2D3C500D7059E /* ReminderService.swift in Sources */,
 				A1199F2A2BAF05C3000C0A84 /* VersionSchemaV5.swift in Sources */,
 				A122C7E22B57DDE8001BE346 /* ContentView.swift in Sources */,
 				A1633E6F2B6528D400ADC10A /* SettingView.swift in Sources */,
@@ -768,16 +783,25 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		A16D36F02D77140400AF3FD2 /* XCLocalSwiftPackageReference "../../Downloads/swiftui-pull-to-refresh" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = "../../Downloads/swiftui-pull-to-refresh";
+/* Begin XCRemoteSwiftPackageReference section */
+		C59CCB712DA2D2BB00406817 /* XCRemoteSwiftPackageReference "swiftui-pull-to-refresh" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/globulus/swiftui-pull-to-refresh.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.9;
+			};
 		};
-/* End XCLocalSwiftPackageReference section */
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		A16D36F12D77140400AF3FD2 /* SwiftUIPullToRefresh */ = {
 			isa = XCSwiftPackageProductDependency;
+			productName = SwiftUIPullToRefresh;
+		};
+		C59CCB722DA2D2BB00406817 /* SwiftUIPullToRefresh */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C59CCB712DA2D2BB00406817 /* XCRemoteSwiftPackageReference "swiftui-pull-to-refresh" */;
 			productName = SwiftUIPullToRefresh;
 		};
 /* End XCSwiftPackageProductDependency section */
