@@ -33,7 +33,7 @@ struct SetStartTimeTip: Tip{
     }
     var rules: [Rule]{
         #Rule(Self.setContentEvent) { event in
-            event.donations.count >= 1  
+            event.donations.count >= 1
         }
     }
 }

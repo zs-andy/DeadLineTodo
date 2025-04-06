@@ -47,6 +47,8 @@ struct TodoView: View {
     @State var selectedDate = Date()
     @State var allowToTap = false
     
+    let reminderService = ReminderService();
+    
     let addFirstTaskTip = FirstTaskTip()
     
     let addTaskTip = AddContentTip()
@@ -73,37 +75,6 @@ struct TodoView: View {
             } else {
                 print("未找到要修改的提醒事项")
             }
-        }
-    }
-    
-    func addEventToReminders(title: String, priority: Int, dueDate: Date, remindDate: Date){
-        let eventStore = EKEventStore()
-        let newEvent = EKReminder(eventStore: eventStore)
-
-        newEvent.title = title
-        newEvent.calendar = eventStore.defaultCalendarForNewReminders()
-        if priority == 0 {
-            newEvent.priority = 0
-        }else if priority == 1{
-            newEvent.priority = 1
-        }else if priority == 2 {
-            newEvent.priority = 5
-        }else{
-            newEvent.priority = 9
-        }
-        
-        let calendar = Calendar.current
-        let dueDateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
-        newEvent.dueDateComponents = dueDateComponents
-        
-        let alarm = EKAlarm(absoluteDate: remindDate)
-        newEvent.addAlarm(alarm)
-        
-        do {
-            try eventStore.save(newEvent, commit: true)
-            print(newEvent.priority)
-        } catch let error {
-            print("Reminder failed with error \(error)")
         }
     }
     
@@ -346,7 +317,7 @@ struct TodoView: View {
                 sendNotification1(todo: repeatTodo)
                 sendNotification2(todo: repeatTodo, day: Double(repeatTodo.Day), hour: Double(repeatTodo.Hour), min: Double(repeatTodo.Min))
                 sendNotification3(todo: repeatTodo)
-                addEventToReminders(title: repeatTodo.content, priority: repeatTodo.priority, dueDate: repeatTodo.endDate, remindDate: repeatTodo.emergencyDate)
+                reminderService.addEventToReminders(title: repeatTodo.content, priority: repeatTodo.priority, dueDate: repeatTodo.endDate, remindDate: repeatTodo.emergencyDate, edittodo: todo)
                 let time = repeatTodo.Day*24*60*60 + repeatTodo.Hour*60*60 + repeatTodo.Min*60
                 addEventToCalendar(title: repeatTodo.content, startDate: repeatTodo.emergencyDate, dueDate: Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + Double(time)))
             }

@@ -35,36 +35,7 @@ struct SearchTodoView: View {
     
     @StateObject private var viewModel = SearchTodoViewModel()
     
-    func addEventToReminders(title: String, priority: Int, dueDate: Date, remindDate: Date){
-        let eventStore = EKEventStore()
-        let newEvent = EKReminder(eventStore: eventStore)
-
-        newEvent.title = title
-        newEvent.calendar = eventStore.defaultCalendarForNewReminders()
-        if priority == 0 {
-            newEvent.priority = 0
-        }else if priority == 1{
-            newEvent.priority = 1
-        }else if priority == 2 {
-            newEvent.priority = 5
-        }else{
-            newEvent.priority = 9
-        }
-        
-        let calendar = Calendar.current
-        let dueDateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
-        newEvent.dueDateComponents = dueDateComponents
-        
-        let alarm = EKAlarm(absoluteDate: remindDate)
-        newEvent.addAlarm(alarm)
-        
-        do {
-            try eventStore.save(newEvent, commit: true)
-            print(newEvent.priority)
-        } catch let error {
-            print("Reminder failed with error \(error)")
-        }
-    }
+    let reminderService = ReminderService();
     
     func filterTodos(todo: TodoData) -> Bool{
         if searchText.isEmpty == false{
@@ -378,7 +349,7 @@ struct SearchTodoView: View {
                 sendNotification1(todo: repeatTodo)
                 sendNotification2(todo: repeatTodo, day: Double(repeatTodo.Day), hour: Double(repeatTodo.Hour), min: Double(repeatTodo.Min))
                 sendNotification3(todo: repeatTodo)
-                addEventToReminders(title: repeatTodo.content, priority: repeatTodo.priority, dueDate: repeatTodo.endDate, remindDate: repeatTodo.emergencyDate)
+                reminderService.addEventToReminders(title: repeatTodo.content, priority: repeatTodo.priority, dueDate: repeatTodo.endDate, remindDate: repeatTodo.emergencyDate, edittodo: todo)
                 let time = repeatTodo.Day*24*60*60 + repeatTodo.Hour*60*60 + repeatTodo.Min*60
                 addEventToCalendar(title: repeatTodo.content, startDate: repeatTodo.emergencyDate, dueDate: Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + Double(time)))
             }

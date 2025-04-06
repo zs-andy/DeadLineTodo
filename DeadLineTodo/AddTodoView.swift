@@ -47,44 +47,11 @@ struct AddTodoView: View {
     
     let enter:LocalizedStringKey = "请输入任务内容"
     
+    let reminderService = ReminderService()
+    
     let setStartTimeTip = SetStartTimeTip()
     let setDeadlineTip = SetDeadlineTip()
     let setDurationTip = SetDurationTip()
-    
-    func addEventToReminders(title: String, priority: Int, dueDate: Date, remindDate: Date){
-        let eventStore = EKEventStore()
-        let newEvent = EKReminder(eventStore: eventStore)
-
-        newEvent.title = title
-        newEvent.calendar = eventStore.defaultCalendarForNewReminders()
-        if priority == 0 {
-            newEvent.priority = 0
-            addtodo.priority = 0
-        }else if priority == 1{
-            newEvent.priority = 1
-            addtodo.priority = 1
-        }else if priority == 2 {
-            newEvent.priority = 5
-            addtodo.priority = 5
-        }else{
-            newEvent.priority = 9
-            addtodo.priority = 9
-        }
-        
-        let calendar = Calendar.current
-        let dueDateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
-        newEvent.dueDateComponents = dueDateComponents
-        
-        let alarm = EKAlarm(absoluteDate: remindDate)
-        newEvent.addAlarm(alarm)
-        
-        do {
-            try eventStore.save(newEvent, commit: true)
-            print(newEvent.priority)
-        } catch let error {
-            print("Reminder failed with error \(error)")
-        }
-    }
     
     func addEventToCalendar(title: String, startDate: Date, dueDate: Date) {
         let eventStore = EKEventStore()
@@ -392,7 +359,7 @@ struct AddTodoView: View {
                                         sendNotification2(todo: addtodo, day: Double(selectedDays), hour: Double(selectedHours), min: Double(selectedMinutes))
                                         sendNotification3(todo: addtodo)
                                         if userSetting[0].reminder{
-                                            addEventToReminders(title: addtodo.content, priority: selectedPriority, dueDate: addtodo.emergencyDate, remindDate: addtodo.emergencyDate)
+                                            reminderService.addEventToReminders(title: addtodo.content, priority: selectedPriority, dueDate: addtodo.emergencyDate, remindDate: addtodo.emergencyDate, edittodo: addtodo)
                                         }else{
                                             if selectedPriority == 0 {
                                                 addtodo.priority = 0
@@ -416,7 +383,7 @@ struct AddTodoView: View {
                                             sendNotification2(todo: addtodo, day: Double(selectedDays), hour: Double(selectedHours), min: Double(selectedMinutes))
                                             sendNotification3(todo: addtodo)
                                             if userSetting[0].reminder{
-                                                addEventToReminders(title: addtodo.content, priority: selectedPriority, dueDate: addtodo.emergencyDate, remindDate: addtodo.emergencyDate)
+                                                reminderService.addEventToReminders(title: addtodo.content, priority: selectedPriority, dueDate: addtodo.emergencyDate, remindDate: addtodo.emergencyDate, edittodo: addtodo)
                                             }else{
                                                 if selectedPriority == 0 {
                                                     addtodo.priority = 0

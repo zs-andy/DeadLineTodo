@@ -18,6 +18,8 @@ struct EditHeader: View {
     @Binding var selectedPriority: Int
     @Environment(\.modelContext) var modelContext
     
+    let reminderService = ReminderService()
+    
     func getStartOfDay(startDate: Date) -> Date{
         let currentDate = startDate
         var calendar = Calendar.current
@@ -45,40 +47,6 @@ struct EditHeader: View {
         return startOfMonth
     }
     
-    func addEventToReminders(title: String, priority: Int, dueDate: Date, remindDate: Date){
-        let eventStore = EKEventStore()
-        let newEvent = EKReminder(eventStore: eventStore)
-
-        newEvent.title = title
-        newEvent.calendar = eventStore.defaultCalendarForNewReminders()
-        if priority == 0 {
-            newEvent.priority = 0
-            edittodo.priority = 0
-        }else if priority == 1{
-            newEvent.priority = 1
-            edittodo.priority = 1
-        }else if priority == 2 {
-            newEvent.priority = 5
-            edittodo.priority = 5
-        }else{
-            newEvent.priority = 9
-            edittodo.priority = 9
-        }
-        
-        let calendar = Calendar.current
-        let dueDateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
-        newEvent.dueDateComponents = dueDateComponents
-        
-        let alarm = EKAlarm(absoluteDate: remindDate)
-        newEvent.addAlarm(alarm)
-        
-        do {
-            try eventStore.save(newEvent, commit: true)
-            print(newEvent.priority)
-        } catch let error {
-            print("Reminder failed with error \(error)")
-        }
-    }
     
     var body: some View {
         VStack{
@@ -102,7 +70,7 @@ struct EditHeader: View {
                         sendNotification1(todo: edittodo)
                         sendNotification2(todo: edittodo, day: Double(edittodo.Day), hour: Double(edittodo.Hour), min: Double(edittodo.Min))
                         sendNotification3(todo: edittodo)
-                        addEventToReminders(title: edittodo.content, priority: selectedPriority, dueDate: edittodo.endDate, remindDate: edittodo.emergencyDate)
+                        reminderService.addEventToReminders(title: edittodo.content, priority: selectedPriority, dueDate: edittodo.endDate, remindDate: edittodo.emergencyDate, edittodo: edittodo)
                         edittodo.done = false
                         edittodo.todo = true
                         EditTodoIsPresent = false
@@ -253,6 +221,8 @@ struct EditBody: View {
     @Query var userSetting: [UserSetting]
     @Environment(\.modelContext) var modelContext
     
+    let reminderService = ReminderService()
+    
     func appear(){
         title = edittodo.content
         day = edittodo.Day
@@ -323,7 +293,7 @@ struct EditBody: View {
             sendNotification2(todo: edittodo, day: Double(edittodo.Day), hour: Double(edittodo.Hour), min: Double(edittodo.Min))
             sendNotification3(todo: edittodo)
             if userSetting[0].reminder{
-                editEventToReminders(title: title, priority: selectedPriority, editTo: edittodo.content, dueDate: edittodo.emergencyDate, remindDate: edittodo.emergencyDate)
+                reminderService.editEventToReminders(title: title, priority: selectedPriority, editTo: edittodo.content, dueDate: edittodo.emergencyDate, remindDate: edittodo.emergencyDate, edittodo: edittodo)
             }else{
                 removeEventToReminders(title: title)
                 if selectedPriority == 0 {
@@ -359,57 +329,6 @@ struct EditBody: View {
         edittodo.priority = priorityInt
         edittodo.repeatTime = repeatTime
         EditTodoIsPresent = false
-    }
-    
-    func editEventToReminders(title: String, priority: Int, editTo: String, dueDate: Date, remindDate: Date){
-        let eventStore = EKEventStore()
-        // 创建一个谓词以查找具有指定标题的提醒事项
-        let predicate = eventStore.predicateForReminders(in: nil)
-        
-        // 指定提醒事项的标题
-        let reminderTitleToModify = title
-
-        // 获取提醒事项
-        eventStore.fetchReminders(matching: predicate) { (reminders) in
-            // 遍历提醒事项列表，找到要修改的提醒事项
-            if let matchingReminder = reminders?.first(where: { $0.title == reminderTitleToModify }) {
-                // 修改提醒事项的属性
-                matchingReminder.title = editTo
-                if priority == 0 {
-                    matchingReminder.priority = 0
-                    edittodo.priority = 0
-                }else if priority == 1{
-                    matchingReminder.priority = 1
-                    edittodo.priority = 1
-                }else if priority == 2 {
-                    matchingReminder.priority = 5
-                    edittodo.priority = 5
-                }else{
-                    matchingReminder.priority = 9
-                    edittodo.priority = 9
-                }
-                let calendar = Calendar.current
-                let dueDateComponents = calendar.dateComponents([.year, .month, .day], from: dueDate)
-                matchingReminder.dueDateComponents = dueDateComponents
-                
-                let alarm = EKAlarm(absoluteDate: remindDate)
-                for alarm in matchingReminder.alarms ?? [] {
-                    matchingReminder.removeAlarm(alarm)
-               }
-                matchingReminder.addAlarm(alarm)
-                
-                // 保存修改
-                do {
-                    try eventStore.save(matchingReminder, commit: true)
-                    print("提醒事项修改成功")
-                } catch {
-                    print("提醒事项修改失败: \(error.localizedDescription)")
-                }
-            } else {
-                print("未找到要修改的提醒事项")
-                addEventToReminders(title: editTo, priority: priority, dueDate: dueDate, remindDate: remindDate)
-            }
-        }
     }
     
     func addEventToCalendar(title: String, startDate: Date, dueDate: Date) {
@@ -490,41 +409,6 @@ struct EditBody: View {
         }
         
         print("未找到要删除的事件")
-    }
-    
-    func addEventToReminders(title: String, priority: Int, dueDate: Date, remindDate: Date){
-        let eventStore = EKEventStore()
-        let newEvent = EKReminder(eventStore: eventStore)
-
-        newEvent.title = title
-        newEvent.calendar = eventStore.defaultCalendarForNewReminders()
-        if priority == 0 {
-            newEvent.priority = 0
-            edittodo.priority = 0
-        }else if priority == 1{
-            newEvent.priority = 1
-            edittodo.priority = 1
-        }else if priority == 2 {
-            newEvent.priority = 5
-            edittodo.priority = 5
-        }else{
-            newEvent.priority = 9
-            edittodo.priority = 9
-        }
-        
-        let calendar = Calendar.current
-        let dueDateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
-        newEvent.dueDateComponents = dueDateComponents
-        
-        let alarm = EKAlarm(absoluteDate: remindDate)
-        newEvent.addAlarm(alarm)
-        
-        do {
-            try eventStore.save(newEvent, commit: true)
-            print(newEvent.priority)
-        } catch let error {
-            print("Reminder failed with error \(error)")
-        }
     }
     
     func cancelPendingNotification(withIdentifier identifier: String) {
