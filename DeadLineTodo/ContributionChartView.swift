@@ -65,34 +65,13 @@ public struct ContributionChartView: View {
                 HStack(spacing: heatMapRectangleSpacing) {
                     HStack{
                         VStack(spacing: heatMapRectangleSpacing){
-                            Text("\(weekNumber()?[0] ?? 0)")
-                                .font(.system(size: 13))
-                                .foregroundColor(Color.gray)
-                                .frame(height: heatMapRectangleWidth)
-                            Text("\(weekNumber()?[1] ?? 0)")
-                                .font(.system(size: 13))
-                                .foregroundColor(Color.gray)
-                                .frame(height: heatMapRectangleWidth)
-                            Text("\(weekNumber()?[2] ?? 0)")
-                                .font(.system(size: 13))
-                                .foregroundColor(Color.gray)
-                                .frame(height: heatMapRectangleWidth)
-                            Text("\(weekNumber()?[3] ?? 0)")
-                                .font(.system(size: 13))
-                                .foregroundColor(Color.gray)
-                                .frame(height: heatMapRectangleWidth)
-                            Text("\(weekNumber()?[4] ?? 0)")
-                                .font(.system(size: 13))
-                                .foregroundColor(Color.gray)
-                                .frame(height: heatMapRectangleWidth)
-                            Text("\(weekNumber()?[5] ?? 0)")
-                                .font(.system(size: 13))
-                                .foregroundColor(Color.gray)
-                                .frame(height: heatMapRectangleWidth)
-                            Text("\(weekNumber()?[6] ?? 0)")
-                                .font(.system(size: 13))
-                                .foregroundColor(Color.gray)
-                                .frame(height: heatMapRectangleWidth)
+                            let weekNumbers = weekNumber() ?? Array(repeating: 0, count: 7)
+                            ForEach(0..<7, id: \.self) { index in
+                                Text("\(weekNumbers[index])")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.gray)
+                                    .frame(height: heatMapRectangleWidth)
+                            }
                         }
                         .padding(.trailing, 4)
                     }

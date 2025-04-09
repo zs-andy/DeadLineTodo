@@ -56,7 +56,7 @@ struct ContentView: View {
     
     func requestPermissions() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
-            if success {
+            if success { 
                 print("通知请求成功")
             } else if let error = error {
                 print(error.localizedDescription)
@@ -532,7 +532,3 @@ struct ContentView: View {
         }
     }
 }
-
-//#Preview {
-//    ContentView()
-//}
