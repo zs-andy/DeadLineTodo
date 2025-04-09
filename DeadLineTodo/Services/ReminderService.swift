@@ -39,7 +39,7 @@ class ReminderService{
         case 1:
             return 1
         case 2:
-            return 2
+            return 5
         default:
             return 9
         }
