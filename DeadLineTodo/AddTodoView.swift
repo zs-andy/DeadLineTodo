@@ -48,33 +48,11 @@ struct AddTodoView: View {
     let enter:LocalizedStringKey = "请输入任务内容"
     
     let reminderService = ReminderService()
+    let calendarService = CalendarService()
     
     let setStartTimeTip = SetStartTimeTip()
     let setDeadlineTip = SetDeadlineTip()
     let setDurationTip = SetDurationTip()
-    
-    func addEventToCalendar(title: String, startDate: Date, dueDate: Date) {
-        let eventStore = EKEventStore()
-        
-        let newEvent = EKEvent(eventStore: eventStore)
-        newEvent.title = title
-        newEvent.calendar = eventStore.defaultCalendarForNewEvents
-        
-        newEvent.startDate = startDate
-        newEvent.endDate = dueDate
-        
-        let alarm = EKAlarm(absoluteDate: startDate)
-        newEvent.addAlarm(alarm)
-        
-        print("add")
-        
-        do {
-            try eventStore.save(newEvent, span: .thisEvent)
-            print("Event saved successfully")
-        } catch let error {
-            print("Event failed with error: \(error.localizedDescription)")
-        }
-    }
     
     func sendNotification1(todo: TodoData) {
         let notificationContent = UNMutableNotificationContent()
@@ -372,7 +350,7 @@ struct AddTodoView: View {
                                             }
                                         }
                                         if userSetting[0].calendar {
-                                            addEventToCalendar(title: addtodo.content, startDate: addtodo.emergencyDate, dueDate: Date(timeIntervalSince1970: addtodo.emergencyDate.timeIntervalSince1970 + Double(time)))
+                                            calendarService.addEventToCalendar(title: addtodo.content, startDate: addtodo.emergencyDate, dueDate: Date(timeIntervalSince1970: addtodo.emergencyDate.timeIntervalSince1970 + Double(time)))
                                         }
                                         modelContext.insert(addtodo)
                                         AddTodoIsPresent = false
@@ -396,7 +374,7 @@ struct AddTodoView: View {
                                                 }
                                             }
                                             if userSetting[0].calendar {
-                                                addEventToCalendar(title: addtodo.content, startDate: addtodo.emergencyDate, dueDate: Date(timeIntervalSince1970: addtodo.emergencyDate.timeIntervalSince1970 + Double(time)))
+                                                calendarService.addEventToCalendar(title: addtodo.content, startDate: addtodo.emergencyDate, dueDate: Date(timeIntervalSince1970: addtodo.emergencyDate.timeIntervalSince1970 + Double(time)))
                                             }
                                             modelContext.insert(addtodo)
                                             AddTodoIsPresent = false

@@ -30,12 +30,16 @@ struct SearchTodoView: View {
     @State var isAddDateAlertPresent: Bool = false
     @State var allowToTap = false
     @State var index_: Int = 0
-    
+    @State var EditTodoIsPresent: Bool = false
+    @State var rowWidth: CGFloat? = nil
+    @State var isShowingDatePicker = false
+    @State var selectedDate = Date()
     @State var searchText: String = ""
-    
     @StateObject private var viewModel = SearchTodoViewModel()
     
     let reminderService = ReminderService();
+    let calendarService = CalendarService()
+    let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
     
     func filterTodos(todo: TodoData) -> Bool{
         if searchText.isEmpty == false{
@@ -44,13 +48,6 @@ struct SearchTodoView: View {
             return false
         }
     }
-    
-    @State var EditTodoIsPresent: Bool = false
-    let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
-    @State var rowWidth: CGFloat? = nil
-    
-    @State var isShowingDatePicker = false
-    @State var selectedDate = Date()
     
     func removeEventToReminders(title: String){
         let eventStore = EKEventStore()
@@ -76,7 +73,6 @@ struct SearchTodoView: View {
             }
         }
     }
-    
     
     func cancelPendingNotification(withIdentifier identifier: String) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
@@ -257,29 +253,6 @@ struct SearchTodoView: View {
         return startOfMonth
     }
     
-    func addEventToCalendar(title: String, startDate: Date, dueDate: Date) {
-        let eventStore = EKEventStore()
-        
-        let newEvent = EKEvent(eventStore: eventStore)
-        newEvent.title = title
-        newEvent.calendar = eventStore.defaultCalendarForNewEvents
-        
-        newEvent.startDate = startDate
-        newEvent.endDate = dueDate
-        
-        let alarm = EKAlarm(absoluteDate: startDate)
-        newEvent.addAlarm(alarm)
-        
-        print("add")
-        
-        do {
-            try eventStore.save(newEvent, span: .thisEvent)
-            print("Event saved successfully")
-        } catch let error {
-            print("Event failed with error: \(error.localizedDescription)")
-        }
-    }
-    
     func done(todo: TodoData, doneDate: Date){
         if todo.addDate.timeIntervalSince1970 <= Date().timeIntervalSince1970{
             if todo.emergency {
@@ -351,7 +324,7 @@ struct SearchTodoView: View {
                 sendNotification3(todo: repeatTodo)
                 reminderService.addEventToReminders(title: repeatTodo.content, priority: repeatTodo.priority, dueDate: repeatTodo.endDate, remindDate: repeatTodo.emergencyDate, edittodo: todo)
                 let time = repeatTodo.Day*24*60*60 + repeatTodo.Hour*60*60 + repeatTodo.Min*60
-                addEventToCalendar(title: repeatTodo.content, startDate: repeatTodo.emergencyDate, dueDate: Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + Double(time)))
+                calendarService.addEventToCalendar(title: repeatTodo.content, startDate: repeatTodo.emergencyDate, dueDate: Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + Double(time)))
             }
             WidgetCenter.shared.reloadAllTimelines()
         }else{

@@ -222,6 +222,7 @@ struct EditBody: View {
     @Environment(\.modelContext) var modelContext
     
     let reminderService = ReminderService()
+    let calendarService = CalendarService()
     
     func appear(){
         title = edittodo.content
@@ -331,29 +332,6 @@ struct EditBody: View {
         EditTodoIsPresent = false
     }
     
-    func addEventToCalendar(title: String, startDate: Date, dueDate: Date) {
-        let eventStore = EKEventStore()
-        
-        let newEvent = EKEvent(eventStore: eventStore)
-        newEvent.title = title
-        newEvent.calendar = eventStore.defaultCalendarForNewEvents
-        
-        newEvent.startDate = startDate
-        newEvent.endDate = dueDate
-        
-        let alarm = EKAlarm(absoluteDate: startDate)
-        newEvent.addAlarm(alarm)
-        
-        print("add")
-        
-        do {
-            try eventStore.save(newEvent, span: .thisEvent)
-            print("Event saved successfully")
-        } catch let error {
-            print("Event failed with error: \(error.localizedDescription)")
-        }
-    }
-    
     func editEventInCalendar(oldTitle: String, newTitle: String, startDate: Date, dueDate: Date) {
         let eventStore = EKEventStore()
         let predicate = eventStore.predicateForEvents(withStart: Date(), end: Date().addingTimeInterval(31 * 24 * 60 * 60), calendars: nil)
@@ -385,7 +363,7 @@ struct EditBody: View {
                 }
             }
         }
-        addEventToCalendar(title: newTitle,startDate: startDate, dueDate: dueDate)
+        calendarService.addEventToCalendar(title: newTitle,startDate: startDate, dueDate: dueDate)
     }
     
     func deleteEventFromCalendar(title: String) {

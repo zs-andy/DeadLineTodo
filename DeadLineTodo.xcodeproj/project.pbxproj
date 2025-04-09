@@ -61,6 +61,7 @@
 		A1DB8CC02B87898700031584 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1DB8CC22B87898700031584 /* Localizable.strings */; };
 		C504ED182DA2D3C500D7059E /* ReminderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C504ED162DA2D3C500D7059E /* ReminderService.swift */; };
 		C59CCB732DA2D2BB00406817 /* SwiftUIPullToRefresh in Frameworks */ = {isa = PBXBuildFile; productRef = C59CCB722DA2D2BB00406817 /* SwiftUIPullToRefresh */; };
+		C5FF358E2DA6779D009B49AE /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FF358D2DA6779D009B49AE /* CalendarService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -136,6 +137,7 @@
 		A1DB8CC12B87898700031584 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		A1DB8CC32B87898900031584 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C504ED162DA2D3C500D7059E /* ReminderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderService.swift; sourceTree = "<group>"; };
+		C5FF358D2DA6779D009B49AE /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -272,6 +274,7 @@
 			isa = PBXGroup;
 			children = (
 				C504ED162DA2D3C500D7059E /* ReminderService.swift */,
+				C5FF358D2DA6779D009B49AE /* CalendarService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -444,6 +447,7 @@
 				A18DBE6D2BB5B3F80096F714 /* PurchaseManager.swift in Sources */,
 				A11D6DCC2CF499FD008C1EE2 /* AppTip.swift in Sources */,
 				A1199F262BAF05C3000C0A84 /* DataModal.swift in Sources */,
+				C5FF358E2DA6779D009B49AE /* CalendarService.swift in Sources */,
 				A11015692B9AF06200B0D25A /* EditView.swift in Sources */,
 				A1633E4A2B64D3A100ADC10A /* SearchTodoView.swift in Sources */,
 				A1199F2C2BAF05C3000C0A84 /* VersionSchemaV1.swift in Sources */,

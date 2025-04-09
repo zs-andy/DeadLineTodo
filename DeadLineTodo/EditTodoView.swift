@@ -39,46 +39,6 @@ struct EditTodoView: View {
     @State private var showAlertEmergencyTime = false
     @State private var showAlertNeedTime = false
     
-    func editEventToReminders(title: String, priority: Int, editTo: String){
-        let eventStore = EKEventStore()
-        // 创建一个谓词以查找具有指定标题的提醒事项
-        let predicate = eventStore.predicateForReminders(in: nil)
-        
-        // 指定提醒事项的标题
-        let reminderTitleToModify = title
-
-        // 获取提醒事项
-        eventStore.fetchReminders(matching: predicate) { (reminders) in
-            // 遍历提醒事项列表，找到要修改的提醒事项
-            if let matchingReminder = reminders?.first(where: { $0.title == reminderTitleToModify }) {
-                // 修改提醒事项的属性
-                matchingReminder.title = editTo
-                if priority == 0 {
-                    matchingReminder.priority = 0
-                    edittodo.priority = 0
-                }else if priority == 1{
-                    matchingReminder.priority = 1
-                    edittodo.priority = 1
-                }else if priority == 2 {
-                    matchingReminder.priority = 5
-                    edittodo.priority = 5
-                }else{
-                    matchingReminder.priority = 9
-                    edittodo.priority = 9
-                }
-                // 保存修改
-                do {
-                    try eventStore.save(matchingReminder, commit: true)
-                    print("提醒事项修改成功")
-                } catch {
-                    print("提醒事项修改失败: \(error.localizedDescription)")
-                }
-            } else {
-                print("未找到要修改的提醒事项")
-            }
-        }
-    }
-    
     // 取消待处理通知
     func cancelPendingNotification(withIdentifier identifier: String) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
