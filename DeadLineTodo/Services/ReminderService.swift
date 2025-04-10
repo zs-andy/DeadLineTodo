@@ -84,5 +84,30 @@ class ReminderService{
             }
         }
     }
+    
+    func removeEventToReminders(title: String){
+        let eventStore = EKEventStore()
+        // 创建一个谓词以查找具有指定标题的提醒事项
+        let predicate = eventStore.predicateForReminders(in: nil)
+        
+        // 指定提醒事项的标题
+        let reminderTitleToModify = title
+
+        // 获取提醒事项
+        eventStore.fetchReminders(matching: predicate) { (reminders) in
+            // 遍历提醒事项列表，找到要修改的提醒事项
+            if let matchingReminder = reminders?.first(where: { $0.title == reminderTitleToModify }) {
+                // 保存修改
+                do {
+                    try eventStore.remove(matchingReminder, commit: true)
+                    print("提醒事项删除成功")
+                } catch {
+                    print("提醒事项删除失败: \(error.localizedDescription)")
+                }
+            } else {
+                print("未找到要修改的提醒事项")
+            }
+        }
+    }
 }
 

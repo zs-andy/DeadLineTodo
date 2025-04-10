@@ -65,4 +65,27 @@ class CalendarService {
         }
         addEventToCalendar(title: newTitle,startDate: startDate, dueDate: dueDate)
     }
+    
+    func deleteEventFromCalendar(title: String) {
+        let eventStore = EKEventStore()
+        
+        let predicate = eventStore.predicateForEvents(withStart: Date(), end: Date().addingTimeInterval(31 * 24 * 60 * 60), calendars: nil)
+        
+        let events = eventStore.events(matching: predicate)
+        
+        for event in events {
+            if event.title == title {
+                do {
+                    try eventStore.remove(event, span: .thisEvent)
+                    print("事件删除成功")
+                    return
+                } catch {
+                    print("事件删除失败: \(error.localizedDescription)")
+                    return
+                }
+            }
+        }
+        
+        print("未找到要删除的事件")
+    }
 }

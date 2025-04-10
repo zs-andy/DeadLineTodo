@@ -62,6 +62,12 @@
 		C504ED182DA2D3C500D7059E /* ReminderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C504ED162DA2D3C500D7059E /* ReminderService.swift */; };
 		C59CCB732DA2D2BB00406817 /* SwiftUIPullToRefresh in Frameworks */ = {isa = PBXBuildFile; productRef = C59CCB722DA2D2BB00406817 /* SwiftUIPullToRefresh */; };
 		C5FF358E2DA6779D009B49AE /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FF358D2DA6779D009B49AE /* CalendarService.swift */; };
+		C5FF35902DA681C2009B49AE /* CalendarHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FF358F2DA681C2009B49AE /* CalendarHelper.swift */; };
+		C5FF35922DA6A47B009B49AE /* ReminderHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FF35912DA6A47B009B49AE /* ReminderHelper.swift */; };
+		C5FF35942DA7C0AC009B49AE /* NotificationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FF35932DA7C0AC009B49AE /* NotificationHelper.swift */; };
+		C5FF35962DA7EBDC009B49AE /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FF35952DA7EBDC009B49AE /* Helper.swift */; };
+		C5FF35982DA7FCF2009B49AE /* EditTodoBodyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FF35972DA7FCF2009B49AE /* EditTodoBodyView.swift */; };
+		C5FF359A2DA7FD69009B49AE /* EditTodoHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FF35992DA7FD69009B49AE /* EditTodoHeaderView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -138,6 +144,12 @@
 		A1DB8CC32B87898900031584 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C504ED162DA2D3C500D7059E /* ReminderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderService.swift; sourceTree = "<group>"; };
 		C5FF358D2DA6779D009B49AE /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
+		C5FF358F2DA681C2009B49AE /* CalendarHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarHelper.swift; sourceTree = "<group>"; };
+		C5FF35912DA6A47B009B49AE /* ReminderHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderHelper.swift; sourceTree = "<group>"; };
+		C5FF35932DA7C0AC009B49AE /* NotificationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHelper.swift; sourceTree = "<group>"; };
+		C5FF35952DA7EBDC009B49AE /* Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
+		C5FF35972DA7FCF2009B49AE /* EditTodoBodyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTodoBodyView.swift; sourceTree = "<group>"; };
+		C5FF35992DA7FD69009B49AE /* EditTodoHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTodoHeaderView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,7 +211,7 @@
 		A122C7DE2B57DDE8001BE346 /* DeadLineTodo */ = {
 			isa = PBXGroup;
 			children = (
-				C59760712DA446FE009ED870 /* New Group */,
+				C59760712DA446FE009ED870 /* Helpers */,
 				C504ED172DA2D3C500D7059E /* Services */,
 				A1199ED02BAEF82A000C0A84 /* DeadLineTodo.entitlements */,
 				A1DB8CBD2B8788F400031584 /* Localize */,
@@ -224,6 +236,8 @@
 				A113E5142B669663007488F2 /* StatisticsView.swift */,
 				A177A9F72BDD3D6D008CD6D3 /* Assets.xcassets */,
 				A122C7E52B57DDEC001BE346 /* Preview Content */,
+				C5FF35972DA7FCF2009B49AE /* EditTodoBodyView.swift */,
+				C5FF35992DA7FD69009B49AE /* EditTodoHeaderView.swift */,
 			);
 			path = DeadLineTodo;
 			sourceTree = "<group>";
@@ -279,11 +293,15 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
-		C59760712DA446FE009ED870 /* New Group */ = {
+		C59760712DA446FE009ED870 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				C5FF358F2DA681C2009B49AE /* CalendarHelper.swift */,
+				C5FF35932DA7C0AC009B49AE /* NotificationHelper.swift */,
+				C5FF35912DA6A47B009B49AE /* ReminderHelper.swift */,
+				C5FF35952DA7EBDC009B49AE /* Helper.swift */,
 			);
-			path = "New Group";
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -427,9 +445,11 @@
 			files = (
 				A16A2C032C22CB3D00EF9667 /* VersionSchemaV7.swift in Sources */,
 				C504ED182DA2D3C500D7059E /* ReminderService.swift in Sources */,
+				C5FF35922DA6A47B009B49AE /* ReminderHelper.swift in Sources */,
 				A1199F2A2BAF05C3000C0A84 /* VersionSchemaV5.swift in Sources */,
 				A122C7E22B57DDE8001BE346 /* ContentView.swift in Sources */,
 				A1633E6F2B6528D400ADC10A /* SettingView.swift in Sources */,
+				C5FF35942DA7C0AC009B49AE /* NotificationHelper.swift in Sources */,
 				A19A87242BDA0FC300B5A133 /* VersionSchemaV6.swift in Sources */,
 				A1633E482B64AB0A00ADC10A /* DoneView.swift in Sources */,
 				A152DA032B774D6500E548E9 /* ContributionChartView.swift in Sources */,
@@ -437,12 +457,15 @@
 				A1199F282BAF05C3000C0A84 /* VersionSchemaV3.swift in Sources */,
 				A1A4BE302CFAEA5800B04E4D /* VersionSchemaV9.swift in Sources */,
 				A1633E2C2B61668E00ADC10A /* EditTodoView.swift in Sources */,
+				C5FF35962DA7EBDC009B49AE /* Helper.swift in Sources */,
 				A1633E302B634E5100ADC10A /* EmergencyView.swift in Sources */,
+				C5FF35902DA681C2009B49AE /* CalendarHelper.swift in Sources */,
 				A16A2C052C22CB6B00EF9667 /* VersionSchemaV8.swift in Sources */,
 				A122C7F02B5AB0AA001BE346 /* TodoView.swift in Sources */,
 				A1199F2E2BAF05C3000C0A84 /* VersionSchemaV4.swift in Sources */,
 				A122C7E02B57DDE8001BE346 /* DeadLineTodoApp.swift in Sources */,
 				A113E5152B669663007488F2 /* StatisticsView.swift in Sources */,
+				C5FF35982DA7FCF2009B49AE /* EditTodoBodyView.swift in Sources */,
 				A18DBE6A2BB46A470096F714 /* StoreView.swift in Sources */,
 				A18DBE6D2BB5B3F80096F714 /* PurchaseManager.swift in Sources */,
 				A11D6DCC2CF499FD008C1EE2 /* AppTip.swift in Sources */,
@@ -452,6 +475,7 @@
 				A1633E4A2B64D3A100ADC10A /* SearchTodoView.swift in Sources */,
 				A1199F2C2BAF05C3000C0A84 /* VersionSchemaV1.swift in Sources */,
 				A122C7F22B5C152A001BE346 /* AddTodoView.swift in Sources */,
+				C5FF359A2DA7FD69009B49AE /* EditTodoHeaderView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
