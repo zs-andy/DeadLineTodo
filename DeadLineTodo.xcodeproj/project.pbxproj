@@ -68,6 +68,7 @@
 		C5FF35962DA7EBDC009B49AE /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FF35952DA7EBDC009B49AE /* Helper.swift */; };
 		C5FF35982DA7FCF2009B49AE /* EditTodoBodyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FF35972DA7FCF2009B49AE /* EditTodoBodyView.swift */; };
 		C5FF359A2DA7FD69009B49AE /* EditTodoHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FF35992DA7FD69009B49AE /* EditTodoHeaderView.swift */; };
+		C5FF359C2DA80F99009B49AE /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FF359B2DA80F99009B49AE /* Service.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -150,6 +151,7 @@
 		C5FF35952DA7EBDC009B49AE /* Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
 		C5FF35972DA7FCF2009B49AE /* EditTodoBodyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTodoBodyView.swift; sourceTree = "<group>"; };
 		C5FF35992DA7FD69009B49AE /* EditTodoHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTodoHeaderView.swift; sourceTree = "<group>"; };
+		C5FF359B2DA80F99009B49AE /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -289,6 +291,7 @@
 			children = (
 				C504ED162DA2D3C500D7059E /* ReminderService.swift */,
 				C5FF358D2DA6779D009B49AE /* CalendarService.swift */,
+				C5FF359B2DA80F99009B49AE /* Service.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -454,6 +457,7 @@
 				A1633E482B64AB0A00ADC10A /* DoneView.swift in Sources */,
 				A152DA032B774D6500E548E9 /* ContributionChartView.swift in Sources */,
 				A1199F302BAF05C3000C0A84 /* VersionSchemaV2.swift in Sources */,
+				C5FF359C2DA80F99009B49AE /* Service.swift in Sources */,
 				A1199F282BAF05C3000C0A84 /* VersionSchemaV3.swift in Sources */,
 				A1A4BE302CFAEA5800B04E4D /* VersionSchemaV9.swift in Sources */,
 				A1633E2C2B61668E00ADC10A /* EditTodoView.swift in Sources */,

@@ -9,20 +9,6 @@ import Foundation
 
 //Rename Helper.swift to something more meaningful
 class Helper {
-    //periodTimes stores total seconds for day, week, month
-    let periodTimes: [Double] = [60*60*24, 60*60*24*7, 60*60*24*30]
-    //TODO: Change function name later
-    func calculateRepeatDay (edittodo: inout TodoData, repeatTime: Int) {
-        edittodo.endDate = Date(timeIntervalSince1970: edittodo.endDate.timeIntervalSince1970 + periodTimes[repeatTime-1])
-        edittodo.emergencyDate = Date(timeIntervalSince1970: edittodo.emergencyDate.timeIntervalSince1970 + periodTimes[repeatTime-1])
-        edittodo.addDate = getStartOfDay(startDate: edittodo.emergencyDate)
-        while edittodo.emergencyDate.timeIntervalSince1970 < Date().timeIntervalSince1970 {
-            edittodo.endDate = Date(timeIntervalSince1970: edittodo.endDate.timeIntervalSince1970 + periodTimes[repeatTime-1])
-            edittodo.emergencyDate = Date(timeIntervalSince1970: edittodo.emergencyDate.timeIntervalSince1970 + periodTimes[repeatTime-1])
-            edittodo.addDate = getStartOfDay(startDate: edittodo.emergencyDate)
-        }
-    }
-    
     func getStartOfDay(startDate: Date) -> Date{
         let currentDate = startDate
         var calendar = Calendar.current
@@ -51,11 +37,5 @@ class Helper {
     //redecide redundancy with notificationhelper
     func getNeedTime(day: Double, hour: Double, min: Double) -> Double {
         return day*60*60*24 + hour*60*60 + min*60
-    }
-    
-    func getLeftTime(todo: TodoData) -> TimeInterval {
-        let time = todo.Day*60*60*24 + todo.Hour*60*60 + todo.Min*60
-        let leftTime = todo.endDate.timeIntervalSince1970 - Date().timeIntervalSince1970 - Double(time)
-        return leftTime
     }
 }

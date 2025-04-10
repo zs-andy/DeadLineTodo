@@ -23,35 +23,7 @@ struct EditTodoHeaderView: View {
     let calendarHelper = CalendarHelper()
     let reminderHelper = ReminderHelper()
     let notificationHelper = NotificationHelper()
-    let helper = Helper()
-    
-    func getStartOfDay(startDate: Date) -> Date{
-        let currentDate = startDate
-        var calendar = Calendar.current
-        calendar.timeZone = TimeZone.current
-        let startOfDay = calendar.startOfDay(for: currentDate)
-        
-        return Date(timeIntervalSince1970: startOfDay.timeIntervalSince1970)
-    }
-    
-    
-    func getStartOfWeek(startDate: Date) -> Date{
-        let currentDate = startDate
-        var calendar = Calendar.current
-        calendar.timeZone = TimeZone.current
-        calendar.firstWeekday = 2
-        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: currentDate))!
-        return Date(timeIntervalSince1970: startOfWeek.timeIntervalSince1970)
-    }
-    
-    func getStartOfMonth(startDate: Date) -> Date{
-        let currentDate = startDate
-        var calendar = Calendar.current
-        calendar.timeZone = TimeZone.current
-        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: currentDate))!
-        return startOfMonth
-    }
-    
+    let service = Service()
     
     var body: some View {
         VStack{
@@ -96,7 +68,7 @@ struct EditTodoHeaderView: View {
                             edittodo.times = 0
                             notificationHelper.cancelAllNotifications(for: edittodo)
                             //Refactored the logic to Helper
-                            helper.calculateRepeatDay(edittodo: &edittodo, repeatTime: edittodo.repeatTime)
+                            service.calculateRepeatDay(edittodo: &edittodo, repeatTime: edittodo.repeatTime)
                             notificationHelper.sendAllNotifications(todo: edittodo)
                             EditTodoIsPresent = false
                         }){
