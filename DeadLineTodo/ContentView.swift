@@ -323,7 +323,7 @@ struct ContentView: View {
                                             Circle()
                                                 .fill(Color.blackBlue2)
                                                 .frame(width: 70, height: 70)
-                                                .shadow(color: Color.blackBlue2,radius: 50)
+//                                                .shadow(color: Color.blackBlue2,radius: 50)
                                             Image(systemName: "plus")
                                                 .bold()
                                                 .font(.system(size: 25))
