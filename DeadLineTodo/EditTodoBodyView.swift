@@ -12,10 +12,15 @@ import EventKit
 import WidgetKit
 
 struct EditTodoBodyView: View {
+    @Environment(\.modelContext) var modelContext
+
     @Binding var edittodo: TodoData
     @Binding var calendar2Id: Int
     @Binding var calendarId: Int
     @Binding var EditTodoIsPresent: Bool
+    @Binding var selectedPriority: Int
+    @Binding var selectedCycle: Int
+    
     @State var title:String = ""
     @State var day: Int = 0
     @State var hour: Int = 0
@@ -29,12 +34,10 @@ struct EditTodoBodyView: View {
     @State var showAlertEndTime = false
     @State var showAlertEmergencyTime = false
     @State var showAlertNeedTime = false
-    
-    @Binding var selectedPriority: Int
-    @Binding var selectedCycle: Int
-    
+    @State var cycle:[String] = ["无","天","周","月"]
+    @State var priority:[String] = ["无","高","中","低"]
+
     @Query var userSetting: [UserSetting]
-    @Environment(\.modelContext) var modelContext
     
     let reminderService = ReminderService()
     let calendarService = CalendarService()
@@ -42,122 +45,6 @@ struct EditTodoBodyView: View {
     let reminderHelper = ReminderHelper()
     let notificationHelper = NotificationHelper()
     let helper = Helper()
-    
-    func appear(){
-        title = edittodo.content
-        day = edittodo.Day
-        hour = edittodo.Hour
-        min = edittodo.Min
-        needTIme = TimeInterval(day*24*60*60 + hour*60*60 + min*60)
-        emergencyDate = edittodo.emergencyDate
-        endDate = edittodo.endDate
-        priorityInt = edittodo.priority
-        repeatTime = edittodo.repeatTime
-        print(edittodo.priority)
-        switch edittodo.priority{
-        case 0:
-            selectedPriority = 0
-        case 1:
-            selectedPriority = 1
-        case 5:
-            selectedPriority = 2
-        default:
-            selectedPriority = 3
-        }
-    }
-    
-    func confirm() {
-        let needTime = TimeInterval(edittodo.Day*24*60*60 + edittodo.Hour*60*60 + edittodo.Min*60)
-        if ((/*edittodo.emergencyDate.timeIntervalSince1970 < Date().timeIntervalSince1970 ||*/ edittodo.emergencyDate.timeIntervalSince1970 > edittodo.endDate.timeIntervalSince1970 - needTime) && emergencyDate != edittodo.emergencyDate) || (edittodo.endDate.timeIntervalSince1970 < Date().timeIntervalSince1970 && endDate != edittodo.endDate) || (helper.getLeftTime(todo: edittodo) <= 0 && edittodo.endDate.timeIntervalSince1970 - edittodo.addDate.timeIntervalSince1970 < needTime){
-            if (/*edittodo.emergencyDate.timeIntervalSince1970 < Date().timeIntervalSince1970 ||*/ edittodo.emergencyDate.timeIntervalSince1970 > edittodo.endDate.timeIntervalSince1970 - needTime) && emergencyDate != edittodo.emergencyDate{
-                calendarId += 1
-                calendar2Id += 1
-                showAlert = true
-                showAlertEmergencyTime = true
-                edittodo.emergencyDate = emergencyDate
-            }
-            if edittodo.endDate < Date() && endDate != edittodo.endDate{
-                calendarId += 1
-                calendar2Id += 1
-                showAlert = true
-                showAlertEndTime = true
-                edittodo.endDate = endDate
-            }else{
-                if edittodo.endDate.timeIntervalSince1970 - edittodo.addDate.timeIntervalSince1970 < needTime{
-                    calendarId += 1
-                    calendar2Id += 1
-                    showAlert = true
-                    showAlertNeedTime = true
-                    edittodo.Day = day
-                    edittodo.Hour = hour
-                    edittodo.Min = min
-                    edittodo.needTime = needTime
-                }
-            }
-        } else {
-            calendarId += 1
-            calendar2Id += 1
-            if edittodo.content == ""{
-                edittodo.content = NSLocalizedString("请输入任务内容", comment: "")
-            }
-            edittodo.needTime = edittodo.actualFinishTime + TimeInterval(edittodo.Day*24*60*60 + edittodo.Hour*60*60 + edittodo.Min*60)
-            edittodo.initialNeedTime = TimeInterval(needTime)
-            edittodo.Sec = 0
-            for i in 0..<4{
-                notificationHelper.cancelPendingNotification(withIdentifier: edittodo.id.uuidString + String(i))
-            }
-            if edittodo.doing == true{
-                notificationHelper.sendNotification4(todo: edittodo)
-            }
-            notificationHelper.sendAllNotifications(todo: edittodo)
-            if userSetting[0].reminder{
-                reminderService.editEventToReminders(title: title, priority: selectedPriority, editTo: edittodo.content, dueDate: edittodo.emergencyDate, remindDate: edittodo.emergencyDate, edittodo: edittodo)
-            }else{
-                reminderService.removeEventToReminders(title: title)
-                switch selectedPriority {
-                case 0:
-                    edittodo.priority = 0
-                case 1:
-                    edittodo.priority = 1
-                case 2:
-                    edittodo.priority = 5
-                case 3:
-                    edittodo.priority = 9
-                default:
-                    break
-                }
-            }
-            if userSetting[0].calendar{
-                calendarService.editEventInCalendar(oldTitle: title, newTitle: edittodo.content, startDate: edittodo.emergencyDate, dueDate: Date(timeIntervalSince1970: edittodo.emergencyDate.timeIntervalSince1970 + needTime))
-            }else{
-                calendarService.deleteEventFromCalendar(title: title)
-            }
-            EditTodoIsPresent = false
-        }
-        WidgetCenter.shared.reloadAllTimelines()
-    }
-    
-    func cancel(){
-        calendarId += 1
-        calendar2Id += 1
-        edittodo.content = title
-        edittodo.Day = day
-        edittodo.Hour = hour
-        edittodo.Min = min
-        needTIme = TimeInterval(day*24*60*60 + hour*60*60 + min*60)
-        edittodo.emergencyDate = emergencyDate
-        edittodo.endDate = endDate
-        edittodo.priority = priorityInt
-        edittodo.repeatTime = repeatTime
-        EditTodoIsPresent = false
-    }
-    
-    func cancelPendingNotification(withIdentifier identifier: String) {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
-    }
-    
-    @State var cycle:[String] = ["无","天","周","月"]
-    @State var priority:[String] = ["无","高","中","低"]
     
     var body: some View {
         ScrollView(showsIndicators: false){
@@ -321,6 +208,120 @@ struct EditTodoBodyView: View {
         .onAppear {
             appear()
         }
+    }
+
+    
+    func appear(){
+        title = edittodo.content
+        day = edittodo.Day
+        hour = edittodo.Hour
+        min = edittodo.Min
+        needTIme = TimeInterval(day*24*60*60 + hour*60*60 + min*60)
+        emergencyDate = edittodo.emergencyDate
+        endDate = edittodo.endDate
+        priorityInt = edittodo.priority
+        repeatTime = edittodo.repeatTime
+        print(edittodo.priority)
+        switch edittodo.priority{
+        case 0:
+            selectedPriority = 0
+        case 1:
+            selectedPriority = 1
+        case 5:
+            selectedPriority = 2
+        default:
+            selectedPriority = 3
+        }
+    }
+    
+    func confirm() {
+        let needTime = TimeInterval(edittodo.Day*24*60*60 + edittodo.Hour*60*60 + edittodo.Min*60)
+        if ((/*edittodo.emergencyDate.timeIntervalSince1970 < Date().timeIntervalSince1970 ||*/ edittodo.emergencyDate.timeIntervalSince1970 > edittodo.endDate.timeIntervalSince1970 - needTime) && emergencyDate != edittodo.emergencyDate) || (edittodo.endDate.timeIntervalSince1970 < Date().timeIntervalSince1970 && endDate != edittodo.endDate) || (helper.getLeftTime(todo: edittodo) <= 0 && edittodo.endDate.timeIntervalSince1970 - edittodo.addDate.timeIntervalSince1970 < needTime){
+            if (/*edittodo.emergencyDate.timeIntervalSince1970 < Date().timeIntervalSince1970 ||*/ edittodo.emergencyDate.timeIntervalSince1970 > edittodo.endDate.timeIntervalSince1970 - needTime) && emergencyDate != edittodo.emergencyDate{
+                calendarId += 1
+                calendar2Id += 1
+                showAlert = true
+                showAlertEmergencyTime = true
+                edittodo.emergencyDate = emergencyDate
+            }
+            if edittodo.endDate < Date() && endDate != edittodo.endDate{
+                calendarId += 1
+                calendar2Id += 1
+                showAlert = true
+                showAlertEndTime = true
+                edittodo.endDate = endDate
+            }else{
+                if edittodo.endDate.timeIntervalSince1970 - edittodo.addDate.timeIntervalSince1970 < needTime{
+                    calendarId += 1
+                    calendar2Id += 1
+                    showAlert = true
+                    showAlertNeedTime = true
+                    edittodo.Day = day
+                    edittodo.Hour = hour
+                    edittodo.Min = min
+                    edittodo.needTime = needTime
+                }
+            }
+        } else {
+            calendarId += 1
+            calendar2Id += 1
+            if edittodo.content == ""{
+                edittodo.content = NSLocalizedString("请输入任务内容", comment: "")
+            }
+            edittodo.needTime = edittodo.actualFinishTime + TimeInterval(edittodo.Day*24*60*60 + edittodo.Hour*60*60 + edittodo.Min*60)
+            edittodo.initialNeedTime = TimeInterval(needTime)
+            edittodo.Sec = 0
+            for i in 0..<4{
+                notificationHelper.cancelPendingNotification(withIdentifier: edittodo.id.uuidString + String(i))
+            }
+            if edittodo.doing == true{
+                notificationHelper.sendNotification4(todo: edittodo)
+            }
+            notificationHelper.sendAllNotifications(todo: edittodo)
+            if userSetting[0].reminder{
+                reminderService.editEventToReminders(title: title, priority: selectedPriority, editTo: edittodo.content, dueDate: edittodo.emergencyDate, remindDate: edittodo.emergencyDate, edittodo: edittodo)
+            }else{
+                reminderService.removeEventToReminders(title: title)
+                switch selectedPriority {
+                case 0:
+                    edittodo.priority = 0
+                case 1:
+                    edittodo.priority = 1
+                case 2:
+                    edittodo.priority = 5
+                case 3:
+                    edittodo.priority = 9
+                default:
+                    break
+                }
+            }
+            if userSetting[0].calendar{
+                calendarService.editEventInCalendar(oldTitle: title, newTitle: edittodo.content, startDate: edittodo.emergencyDate, dueDate: Date(timeIntervalSince1970: edittodo.emergencyDate.timeIntervalSince1970 + needTime))
+            }else{
+                calendarService.deleteEventFromCalendar(title: title)
+            }
+            EditTodoIsPresent = false
+        }
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+    
+    func cancel(){
+        calendarId += 1
+        calendar2Id += 1
+        edittodo.content = title
+        edittodo.Day = day
+        edittodo.Hour = hour
+        edittodo.Min = min
+        needTIme = TimeInterval(day*24*60*60 + hour*60*60 + min*60)
+        edittodo.emergencyDate = emergencyDate
+        edittodo.endDate = endDate
+        edittodo.priority = priorityInt
+        edittodo.repeatTime = repeatTime
+        EditTodoIsPresent = false
+    }
+    
+    func cancelPendingNotification(withIdentifier identifier: String) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
     }
 }
 

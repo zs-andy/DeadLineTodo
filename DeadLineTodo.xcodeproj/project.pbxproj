@@ -221,6 +221,8 @@
 				A19A87322BDCE52500B5A133 /* InfoPlist.strings */,
 				A15320FF2BC190FE00C69E56 /* PropertyList.plist */,
 				A1633E2B2B61668E00ADC10A /* EditTodoView.swift */,
+				C5FF35972DA7FCF2009B49AE /* EditTodoBodyView.swift */,
+				C5FF35992DA7FD69009B49AE /* EditTodoHeaderView.swift */,
 				A11015682B9AF03B00B0D25A /* EditView.swift */,
 				A152DA012B774D6500E548E9 /* ContributionChartView.swift */,
 				A122C7E12B57DDE8001BE346 /* ContentView.swift */,
@@ -236,8 +238,6 @@
 				A113E5142B669663007488F2 /* StatisticsView.swift */,
 				A177A9F72BDD3D6D008CD6D3 /* Assets.xcassets */,
 				A122C7E52B57DDEC001BE346 /* Preview Content */,
-				C5FF35972DA7FCF2009B49AE /* EditTodoBodyView.swift */,
-				C5FF35992DA7FD69009B49AE /* EditTodoHeaderView.swift */,
 			);
 			path = DeadLineTodo;
 			sourceTree = "<group>";
