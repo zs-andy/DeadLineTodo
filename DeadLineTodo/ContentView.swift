@@ -45,116 +45,6 @@ struct ContentView: View {
     
     let scoreTip = ScoreTip()
     
-    func getEmergencyNum(tododata: [TodoData]){
-        EmergencyNum = 0
-        for todo in tododata {
-            if todo.emergency {
-                EmergencyNum += 1
-            }
-        }
-    }
-    
-    func requestPermissions() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
-            if success { 
-                print("通知请求成功")
-            } else if let error = error {
-                print(error.localizedDescription)
-            }
-        }
-    }
-    
-    func requestAccessForReminders() {
-        let eventStore = EKEventStore()
-        let status = EKEventStore.authorizationStatus(for: .reminder)
-        switch status {
-            case .notDetermined:
-                func handleRequestCompletion(success: Bool, error: Error?) {
-                    if let error {
-                        print("Error trying to request access: \(error)")
-                    } else if success {
-                        print("User granted access")
-                    } else {
-                        print("User denied access")
-                    }
-                }
-            eventStore.requestFullAccessToReminders { success, error in
-                handleRequestCompletion(success: success, error: error)
-            }
-            case .restricted:
-                print("Restricted")
-            case .denied:
-                print("Denied") // Offer option to go to the app settings screen
-            case .fullAccess, .authorized: // fullAccess is for iOS 17+. authorized is for iOS 16-
-                print("Full access")
-            case .writeOnly:
-                print("Write-only access")
-            @unknown default:
-                print("Uh-oh, code is out-of-date")
-        }
-    }
-    
-    func requestCalendarPermission(){
-        let eventStore = EKEventStore()
-        let status = EKEventStore.authorizationStatus(for: .event)
-        switch status {
-            case .notDetermined:
-                func handleRequestCompletion(success: Bool, error: Error?) {
-                    if let error {
-                        print("Error trying to request access: \(error)")
-                    } else if success {
-                        print("User granted access")
-                    } else {
-                        print("User denied access")
-                    }
-                }
-            eventStore.requestFullAccessToEvents { success, error in
-                handleRequestCompletion(success: success, error: error)
-            }
-            case .restricted:
-                print("Restricted")
-            case .denied:
-                print("Denied") // Offer option to go to the app settings screen
-            case .fullAccess, .authorized:
-                print("Full access")
-            case .writeOnly:
-                print("Write-only access")
-            @unknown default:
-                print("Uh-oh, code is out-of-date")
-        }
-    }
-    
-    func getScore(tododata: [TodoData]) -> Int {//计算效率分数
-        var score: Int = 0
-        var num: Int = 0
-        let currentDate = Date()
-        // 创建一个日历对象
-        var calendar = Calendar.current
-        // 获取本周的起始日期
-        calendar.firstWeekday = 2
-        if let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: currentDate)?.start {
-            for todo in tododata{
-                if todo.done && todo.doneDate.timeIntervalSince1970 > startOfWeek.timeIntervalSince1970 {
-                    num += 1
-                    score = todo.score + score
-                }
-            }
-        } else {
-            print("获取本周起始日期失败")
-        }
-//        for todo in tododata{
-//            if todo.done && todo.doneDate.timeIntervalSince1970 > Date().timeIntervalSince1970 - TimeInterval(7*24*60*60){//近一周的
-//                num += 1
-//                score = todo.score + score
-//            }
-//        }
-        if num != 0{
-            return score/num
-        }else{
-            return 0
-        }
-    }
-    
     var body: some View {
         ZStack{
             GeometryReader { geo in
@@ -478,6 +368,7 @@ struct ContentView: View {
         }
         .onChange(of: store.purchasedCourses) { oldValue, newValue in
             Task {
+                //TODO: FIX
                 var hasPurchase1 = false
                 var hasPurchase2 = false
                 var hasPurchase3 = false
@@ -529,6 +420,116 @@ struct ContentView: View {
             requestPermissions()
             requestAccessForReminders()
             requestCalendarPermission()
+        }
+    }
+    
+    func getEmergencyNum(tododata: [TodoData]){
+        EmergencyNum = 0
+        for todo in tododata {
+            if todo.emergency {
+                EmergencyNum += 1
+            }
+        }
+    }
+    
+    func requestPermissions() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
+            if success {
+                print("通知请求成功")
+            } else if let error = error {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    func requestAccessForReminders() {
+        let eventStore = EKEventStore()
+        let status = EKEventStore.authorizationStatus(for: .reminder)
+        switch status {
+            case .notDetermined:
+                func handleRequestCompletion(success: Bool, error: Error?) {
+                    if let error {
+                        print("Error trying to request access: \(error)")
+                    } else if success {
+                        print("User granted access")
+                    } else {
+                        print("User denied access")
+                    }
+                }
+            eventStore.requestFullAccessToReminders { success, error in
+                handleRequestCompletion(success: success, error: error)
+            }
+            case .restricted:
+                print("Restricted")
+            case .denied:
+                print("Denied") // Offer option to go to the app settings screen
+            case .fullAccess, .authorized: // fullAccess is for iOS 17+. authorized is for iOS 16-
+                print("Full access")
+            case .writeOnly:
+                print("Write-only access")
+            @unknown default:
+                print("Uh-oh, code is out-of-date")
+        }
+    }
+    
+    func requestCalendarPermission(){
+        let eventStore = EKEventStore()
+        let status = EKEventStore.authorizationStatus(for: .event)
+        switch status {
+            case .notDetermined:
+                func handleRequestCompletion(success: Bool, error: Error?) {
+                    if let error {
+                        print("Error trying to request access: \(error)")
+                    } else if success {
+                        print("User granted access")
+                    } else {
+                        print("User denied access")
+                    }
+                }
+            eventStore.requestFullAccessToEvents { success, error in
+                handleRequestCompletion(success: success, error: error)
+            }
+            case .restricted:
+                print("Restricted")
+            case .denied:
+                print("Denied") // Offer option to go to the app settings screen
+            case .fullAccess, .authorized:
+                print("Full access")
+            case .writeOnly:
+                print("Write-only access")
+            @unknown default:
+                print("Uh-oh, code is out-of-date")
+        }
+    }
+    
+    func getScore(tododata: [TodoData]) -> Int {//计算效率分数
+        var score: Int = 0
+        var num: Int = 0
+        let currentDate = Date()
+        // 创建一个日历对象
+        var calendar = Calendar.current
+        // 获取本周的起始日期
+        calendar.firstWeekday = 2
+        if let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: currentDate)?.start {
+            for todo in tododata{
+                if todo.done && todo.doneDate.timeIntervalSince1970 > startOfWeek.timeIntervalSince1970 {
+                    num += 1
+                    score = todo.score + score
+                }
+            }
+        } else {
+            print("获取本周起始日期失败")
+        }
+//        for todo in tododata{
+//            if todo.done && todo.doneDate.timeIntervalSince1970 > Date().timeIntervalSince1970 - TimeInterval(7*24*60*60){//近一周的
+//                num += 1
+//                score = todo.score + score
+//            }
+//        }
+        if num != 0{
+            return score/num
+        }else{
+            return 0
         }
     }
 }
