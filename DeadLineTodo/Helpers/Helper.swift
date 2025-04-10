@@ -38,4 +38,9 @@ class Helper {
     func getNeedTime(day: Double, hour: Double, min: Double) -> Double {
         return day*60*60*24 + hour*60*60 + min*60
     }
+    
+    func calendarPlusOne(calendarId: inout Int, calendar2Id: inout Int) {
+        calendarId += 1
+        calendar2Id += 1
+    }
 }
