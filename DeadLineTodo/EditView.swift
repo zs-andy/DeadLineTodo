@@ -22,7 +22,7 @@
 //    let calendarService = CalendarService()
 //    let calendarHelper = CalendarHelper()
 //    let reminderHelper = ReminderHelper()
-//    let notificationHelper = NotificationHelper()
+//    let notificationService = NotificationHelper()
 //    let helper = Helper()
 //    
 //    func getStartOfDay(startDate: Date) -> Date{
@@ -72,7 +72,7 @@
 //                if edittodo.done {
 //                    //完成撤回按钮
 //                    Button(action:{
-//                        notificationHelper.sendAllNotifications(todo: edittodo)
+//                        notificationService.sendAllNotifications(todo: edittodo)
 //                        reminderService.addEventToReminders(title: edittodo.content, priority: selectedPriority, dueDate: edittodo.endDate, remindDate: edittodo.emergencyDate, edittodo: edittodo)
 //                        edittodo.done = false
 //                        edittodo.todo = true
@@ -94,10 +94,10 @@
 //                        Button(action:{
 //                            cancelTime += 1
 //                            edittodo.times = 0
-//                            notificationHelper.cancelAllNotifications(for: edittodo)
+//                            notificationService.cancelAllNotifications(for: edittodo)
 //                            //Refactored the logic to Helper
 //                            helper.calculateRepeatDay(edittodo: &edittodo, repeatTime: edittodo.repeatTime)
-//                            notificationHelper.sendAllNotifications(todo: edittodo)
+//                            notificationService.sendAllNotifications(todo: edittodo)
 //                            EditTodoIsPresent = false
 //                        }){
 //                            ZStack{
@@ -156,7 +156,7 @@
 //    let calendarService = CalendarService()
 //    let calendarHelper = CalendarHelper()
 //    let reminderHelper = ReminderHelper()
-//    let notificationHelper = NotificationHelper()
+//    let notificationService = NotificationHelper()
 //    let helper = Helper()
 //    
 //    func appear(){
@@ -220,12 +220,12 @@
 //            edittodo.initialNeedTime = TimeInterval(needTime)
 //            edittodo.Sec = 0
 //            for i in 0..<4{
-//                notificationHelper.cancelPendingNotification(withIdentifier: edittodo.id.uuidString + String(i))
+//                notificationService.cancelPendingNotification(withIdentifier: edittodo.id.uuidString + String(i))
 //            }
 //            if edittodo.doing == true{
-//                notificationHelper.sendNotification4(todo: edittodo)
+//                notificationService.sendNotification4(todo: edittodo)
 //            }
-//            notificationHelper.sendAllNotifications(todo: edittodo)
+//            notificationService.sendAllNotifications(todo: edittodo)
 //            if userSetting[0].reminder{
 //                reminderService.editEventToReminders(title: title, priority: selectedPriority, editTo: edittodo.content, dueDate: edittodo.emergencyDate, remindDate: edittodo.emergencyDate, edittodo: edittodo)
 //            }else{

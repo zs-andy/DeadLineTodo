@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftData
 
 class Service {
     let helper = Helper()
@@ -23,9 +24,17 @@ class Service {
         }
     }
     
-    func getLeftTime(todo: TodoData) -> TimeInterval {
-        let time = todo.Day*60*60*24 + todo.Hour*60*60 + todo.Min*60
-        let leftTime = todo.endDate.timeIntervalSince1970 - Date().timeIntervalSince1970 - Double(time)
-        return leftTime
+    func calculateRepeatTimeByEndDate (repeatTodo: inout TodoData, repeatTime: Int, modelContext: ModelContext) {
+        repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24)
+        repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24)
+        repeatTodo.addDate = helper.getStartOfDay(startDate: repeatTodo.emergencyDate)
+        while repeatTodo.endDate < Date() {//改为endDate判断
+            repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24)
+            repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24)
+            repeatTodo.addDate = helper.getStartOfDay(startDate: repeatTodo.emergencyDate)
+        }
+        modelContext.insert(repeatTodo)
     }
+    
+   
 }

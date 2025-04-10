@@ -43,7 +43,7 @@ struct EditTodoBodyView: View {
     let calendarService = CalendarService()
     let calendarHelper = CalendarHelper()
     let reminderHelper = ReminderHelper()
-    let notificationHelper = NotificationHelper()
+    let notificationService = NotificationService()
     let helper = Helper()
     let service = Service()
     
@@ -237,7 +237,7 @@ struct EditTodoBodyView: View {
     
     func confirm() {
         let needTime = TimeInterval(edittodo.Day*24*60*60 + edittodo.Hour*60*60 + edittodo.Min*60)
-        if ((/*edittodo.emergencyDate.timeIntervalSince1970 < Date().timeIntervalSince1970 ||*/ edittodo.emergencyDate.timeIntervalSince1970 > edittodo.endDate.timeIntervalSince1970 - needTime) && emergencyDate != edittodo.emergencyDate) || (edittodo.endDate.timeIntervalSince1970 < Date().timeIntervalSince1970 && endDate != edittodo.endDate) || (service.getLeftTime(todo: edittodo) <= 0 && edittodo.endDate.timeIntervalSince1970 - edittodo.addDate.timeIntervalSince1970 < needTime){
+        if ((/*edittodo.emergencyDate.timeIntervalSince1970 < Date().timeIntervalSince1970 ||*/ edittodo.emergencyDate.timeIntervalSince1970 > edittodo.endDate.timeIntervalSince1970 - needTime) && emergencyDate != edittodo.emergencyDate) || (edittodo.endDate.timeIntervalSince1970 < Date().timeIntervalSince1970 && endDate != edittodo.endDate) || (helper.getLeftTime(todo: edittodo) <= 0 && edittodo.endDate.timeIntervalSince1970 - edittodo.addDate.timeIntervalSince1970 < needTime){
             if (/*edittodo.emergencyDate.timeIntervalSince1970 < Date().timeIntervalSince1970 ||*/ edittodo.emergencyDate.timeIntervalSince1970 > edittodo.endDate.timeIntervalSince1970 - needTime) && emergencyDate != edittodo.emergencyDate{
                 helper.calendarPlusOne(calendarId: &calendarId, calendar2Id: &calendar2Id)
                 showAlert = true
@@ -269,12 +269,12 @@ struct EditTodoBodyView: View {
             edittodo.initialNeedTime = TimeInterval(needTime)
             edittodo.Sec = 0
             for i in 0..<4{
-                notificationHelper.cancelPendingNotification(withIdentifier: edittodo.id.uuidString + String(i))
+                notificationService.cancelPendingNotification(withIdentifier: edittodo.id.uuidString + String(i))
             }
             if edittodo.doing == true{
-                notificationHelper.sendNotification4(todo: edittodo)
+                notificationService.sendNotification4(todo: edittodo)
             }
-            notificationHelper.sendAllNotifications(todo: edittodo)
+            notificationService.sendAllNotifications(todo: edittodo)
             if userSetting[0].reminder{
                 reminderService.editEventToReminders(title: title, priority: selectedPriority, editTo: edittodo.content, dueDate: edittodo.emergencyDate, remindDate: edittodo.emergencyDate, edittodo: edittodo)
             }else{

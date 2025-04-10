@@ -496,6 +496,7 @@ struct TodoView: View {
                                                                 cancelPendingNotification(withIdentifier: tododata[index].id.uuidString + "4")
                                                                 tododata[index].lastTime = tododata[index].actualFinishTime
                                                                 if tododata[index].actualFinishTime < tododata[index].needTime{
+                                                                    
                                                                     tododata[index].Day = decomposeSeconds(totalSeconds: tododata[index].needTime - tododata[index].actualFinishTime).days
                                                                     tododata[index].Hour = decomposeSeconds(totalSeconds: tododata[index].needTime - tododata[index].actualFinishTime).hours
                                                                     tododata[index].Min = decomposeSeconds(totalSeconds: tododata[index].needTime - tododata[index].actualFinishTime).minutes
