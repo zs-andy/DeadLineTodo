@@ -35,6 +35,4 @@ class Service {
         }
         modelContext.insert(repeatTodo)
     }
-    
-   
 }

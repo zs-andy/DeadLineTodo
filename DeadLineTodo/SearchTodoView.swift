@@ -15,15 +15,6 @@ extension SearchTodoView {
     class SearchTodoViewModel: ObservableObject {
         @Published var index_: Int = 0
     }
-    
-    func styleTimeText() -> some View {
-        self
-            .foregroundStyle(Color.blackGray)
-            .padding(.bottom, 0.5)
-            .padding(.horizontal, -3)
-            .bold()
-            .font(.system(size: 13))
-    }
 }
 
 struct SearchTodoView: View {
@@ -39,19 +30,41 @@ struct SearchTodoView: View {
     @State var isAddDateAlertPresent: Bool = false
     @State var allowToTap = false
     @State var index_: Int = 0
-    @State var EditTodoIsPresent: Bool = false
-    @State var rowWidth: CGFloat? = nil
-    @State var isShowingDatePicker = false
-    @State var selectedDate = Date()
+    
     @State var searchText: String = ""
+    
     @StateObject private var viewModel = SearchTodoViewModel()
     
-    let reminderService = ReminderService()
-    let calendarService = CalendarService()
-    let notificationService = NotificationService()
-    let service = Service()
-    let helper = Helper()
-    let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
+    func addEventToReminders(title: String, priority: Int, dueDate: Date, remindDate: Date){
+        let eventStore = EKEventStore()
+        let newEvent = EKReminder(eventStore: eventStore)
+
+        newEvent.title = title
+        newEvent.calendar = eventStore.defaultCalendarForNewReminders()
+        if priority == 0 {
+            newEvent.priority = 0
+        }else if priority == 1{
+            newEvent.priority = 1
+        }else if priority == 2 {
+            newEvent.priority = 5
+        }else{
+            newEvent.priority = 9
+        }
+        
+        let calendar = Calendar.current
+        let dueDateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
+        newEvent.dueDateComponents = dueDateComponents
+        
+        let alarm = EKAlarm(absoluteDate: remindDate)
+        newEvent.addAlarm(alarm)
+        
+        do {
+            try eventStore.save(newEvent, commit: true)
+            print(newEvent.priority)
+        } catch let error {
+            print("Reminder failed with error \(error)")
+        }
+    }
     
     func filterTodos(todo: TodoData) -> Bool{
         if searchText.isEmpty == false{
@@ -60,6 +73,13 @@ struct SearchTodoView: View {
             return false
         }
     }
+    
+    @State var EditTodoIsPresent: Bool = false
+    let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
+    @State var rowWidth: CGFloat? = nil
+    
+    @State var isShowingDatePicker = false
+    @State var selectedDate = Date()
     
     func removeEventToReminders(title: String){
         let eventStore = EKEventStore()
@@ -85,6 +105,7 @@ struct SearchTodoView: View {
             }
         }
     }
+    
     
     func cancelPendingNotification(withIdentifier identifier: String) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
@@ -214,6 +235,30 @@ struct SearchTodoView: View {
         return l
     }
     
+    func getScore(todo: TodoData) -> Int {//计算效率分数
+        var score1: Double = 0
+        var score2: Double = 0
+        let needTime = todo.Day*60*60*24 + todo.Hour*60*60 + todo.Min*60 + todo.Sec
+        let sum = todo.endDate.timeIntervalSince1970 - todo.addDate.timeIntervalSince1970
+        score1 = (todo.endDate.timeIntervalSince1970 - todo.doneDate.timeIntervalSince1970 - Double(needTime)) / sum
+        if score1 >= 1{
+            score1 = 1
+        }
+        if score1 <= 0{
+            score1 = 0
+        }
+        if todo.needTime >= todo.actualFinishTime {
+            score2 = 100
+        }else{
+            if (todo.actualFinishTime - todo.needTime) / todo.needTime >= 1{
+                score2 = 0
+            }else{
+                score2 = 100 - ((todo.actualFinishTime - todo.needTime) / todo.needTime) * 100
+            }
+        }
+        return Int(score1 * 100 * 0.3) + Int(score2 * 0.7)
+    }
+    
     func getStartOfDay(startDate: Date) -> Date{
         let currentDate = startDate
         var calendar = Calendar.current
@@ -241,6 +286,29 @@ struct SearchTodoView: View {
         return startOfMonth
     }
     
+    func addEventToCalendar(title: String, startDate: Date, dueDate: Date) {
+        let eventStore = EKEventStore()
+        
+        let newEvent = EKEvent(eventStore: eventStore)
+        newEvent.title = title
+        newEvent.calendar = eventStore.defaultCalendarForNewEvents
+        
+        newEvent.startDate = startDate
+        newEvent.endDate = dueDate
+        
+        let alarm = EKAlarm(absoluteDate: startDate)
+        newEvent.addAlarm(alarm)
+        
+        print("add")
+        
+        do {
+            try eventStore.save(newEvent, span: .thisEvent)
+            print("Event saved successfully")
+        } catch let error {
+            print("Event failed with error: \(error.localizedDescription)")
+        }
+    }
+    
     func done(todo: TodoData, doneDate: Date){
         if todo.addDate.timeIntervalSince1970 <= Date().timeIntervalSince1970{
             if todo.emergency {
@@ -262,24 +330,57 @@ struct SearchTodoView: View {
                     todo.Sec = 0
                 }
             }
-            notificationService.cancelAllNotifications(for: todo)
-            reminderService.removeEventToReminders(title: todo.content)
+            cancelPendingNotification(withIdentifier: todo.id.uuidString + "1")
+            cancelPendingNotification(withIdentifier: todo.id.uuidString + "2")
+            cancelPendingNotification(withIdentifier: todo.id.uuidString + "3")
+            cancelPendingNotification(withIdentifier: todo.id.uuidString + "4")
+            removeEventToReminders(title: todo.content)
             todo.doneDate = Date()
-            todo.score = helper.getScore(todo: todo)
+            todo.score = getScore(todo: todo)
             todo.offset = 0
             todo.todo = false
             todo.emergency = false
             todo.done = true
             if todo.repeatTime != 0 {
+
                 var repeatTodo: TodoData = TodoData(content: todo.content, repeatTime: todo.repeatTime, priority: todo.priority, endDate: todo.endDate, addDate: Date(), doneDate: Date(), emergencyDate: todo.emergencyDate, startDoingDate: Date(), leftTime: 0,needTime: todo.initialNeedTime, actualFinishTime: 0, lastTime: 0, initialNeedTime: todo.initialNeedTime, Day: decomposeSeconds(totalSeconds: todo.initialNeedTime).days, Hour: decomposeSeconds(totalSeconds: todo.initialNeedTime).hours, Min: decomposeSeconds(totalSeconds: todo.initialNeedTime).minutes, Sec: decomposeSeconds(totalSeconds: todo.initialNeedTime).seconds, todo: true, done: false, emergency: false, doing: false, offset: 0,lastoffset: 0, score: 0, times: todo.times + 1)
-                
-                service.calculateRepeatTimeByEndDate(repeatTodo: &repeatTodo, repeatTime: todo.repeatTime, modelContext: modelContext)
-                
-                notificationService.sendAllNotifications(todo: repeatTodo)
-                
-                reminderService.addEventToReminders(title: repeatTodo.content, priority: repeatTodo.priority, dueDate: repeatTodo.endDate, remindDate: repeatTodo.emergencyDate, edittodo: todo)
+                if todo.repeatTime == 1 {
+                    repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24)
+                    repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24)
+                    repeatTodo.addDate = getStartOfDay(startDate: repeatTodo.emergencyDate)
+                    while repeatTodo.endDate < Date() {//改为endDate判断
+                        repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24)
+                        repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24)
+                        repeatTodo.addDate = getStartOfDay(startDate: repeatTodo.emergencyDate)
+                    }
+                    modelContext.insert(repeatTodo)
+                }else if todo.repeatTime == 2 {
+                    repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24*7)
+                    repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24*7)
+                    repeatTodo.addDate = getStartOfWeek(startDate: repeatTodo.emergencyDate)
+                    while repeatTodo.endDate < Date() {
+                        repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24*7)
+                        repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24*7)
+                        repeatTodo.addDate = getStartOfWeek(startDate: repeatTodo.emergencyDate)
+                    }
+                    modelContext.insert(repeatTodo)
+                }else if todo.repeatTime == 3 {
+                    repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24*7*30)
+                    repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24*7*30)
+                    repeatTodo.addDate = getStartOfMonth(startDate: repeatTodo.emergencyDate)
+                    while repeatTodo.endDate < Date() {
+                        repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24*7*30)
+                        repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24*7*30)
+                        repeatTodo.addDate = getStartOfMonth(startDate: repeatTodo.emergencyDate)
+                    }
+                    modelContext.insert(repeatTodo)
+                }
+                sendNotification1(todo: repeatTodo)
+                sendNotification2(todo: repeatTodo, day: Double(repeatTodo.Day), hour: Double(repeatTodo.Hour), min: Double(repeatTodo.Min))
+                sendNotification3(todo: repeatTodo)
+                addEventToReminders(title: repeatTodo.content, priority: repeatTodo.priority, dueDate: repeatTodo.endDate, remindDate: repeatTodo.emergencyDate)
                 let time = repeatTodo.Day*24*60*60 + repeatTodo.Hour*60*60 + repeatTodo.Min*60
-                calendarService.addEventToCalendar(title: repeatTodo.content, startDate: repeatTodo.emergencyDate, dueDate: Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + Double(time)))
+                addEventToCalendar(title: repeatTodo.content, startDate: repeatTodo.emergencyDate, dueDate: Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + Double(time)))
             }
             WidgetCenter.shared.reloadAllTimelines()
         }else{
@@ -343,9 +444,12 @@ struct SearchTodoView: View {
                                                         EmergencyNum -= 1
                                                     }
                                                     tododata[index].offset = 0
-                                                    notificationService.cancelAllNotifications(for: tododata[index])
-                                                    reminderService.removeEventToReminders(title: tododata[index].content)
-                                                    calendarService.deleteEventFromCalendar(title: tododata[index].content)
+                                                    cancelPendingNotification(withIdentifier: tododata[index].id.uuidString + "1")
+                                                    cancelPendingNotification(withIdentifier: tododata[index].id.uuidString + "2")
+                                                    cancelPendingNotification(withIdentifier: tododata[index].id.uuidString + "3")
+                                                    cancelPendingNotification(withIdentifier: tododata[index].id.uuidString + "4")
+                                                    removeEventToReminders(title: tododata[index].content)
+                                                    deleteEventFromCalendar(title: tododata[index].content)
                                                     modelContext.delete(tododata[index])
                                                 }
                                                 WidgetCenter.shared.reloadAllTimelines()
@@ -369,7 +473,7 @@ struct SearchTodoView: View {
                                                             if tododata[index].addDate.timeIntervalSince1970 <= Date().timeIntervalSince1970{
                                                                 if tododata[index].doing {
                                                                     tododata[index].doing = false
-                                                                    notificationService.cancelPendingNotification(withIdentifier: tododata[index].id.uuidString + "4")
+                                                                    cancelPendingNotification(withIdentifier: tododata[index].id.uuidString + "4")
                                                                     tododata[index].lastTime = tododata[index].actualFinishTime
                                                                     if tododata[index].actualFinishTime < tododata[index].needTime{
                                                                         tododata[index].Day = decomposeSeconds(totalSeconds: tododata[index].needTime - tododata[index].actualFinishTime).days
@@ -482,44 +586,26 @@ struct SearchTodoView: View {
                                                     VStack(alignment: .leading){
                                                         if tododata[index].priority == 0{
                                                             Text("\(tododata[index].content)")
-                                                                .foregroundStyle(Color.myBlack)
-                                                                .multilineTextAlignment(.leading)
-                                                                .bold()
-                                                                .font(.system(size: 17))
+                                                                .textContentStyle()
                                                         }else if tododata[index].priority == 1 {
                                                             Text("\(tododata[index].content)!!!")
-                                                                .foregroundStyle(Color.myBlack)
-                                                                .multilineTextAlignment(.leading)
-                                                                .bold()
-                                                                .font(.system(size: 17))
+                                                                .textContentStyle()
                                                         }else if tododata[index].priority == 5 {
                                                             Text("\(tododata[index].content)!!")
-                                                                .foregroundStyle(Color.myBlack)
-                                                                .multilineTextAlignment(.leading)
-                                                                .bold()
-                                                                .font(.system(size: 17))
+                                                                .textContentStyle()
                                                         }else if tododata[index].priority == 9 {
                                                             Text("\(tododata[index].content)!")
-                                                                .foregroundStyle(Color.myBlack)
-                                                                .multilineTextAlignment(.leading)
-                                                                .bold()
-                                                                .font(.system(size: 17))
+                                                                .textContentStyle()
                                                         }
                                                         if tododata[index].repeatTime == 1{
                                                             Text("已坚持\(tododata[index].times)天")
-                                                                .foregroundStyle(Color.blackGray)
-                                                                .bold()
-                                                                .font(.system(size: 11))
+                                                                .textRepeatedTimesStyle()
                                                         }else if tododata[index].repeatTime == 2{
                                                             Text("已坚持\(tododata[index].times)周")
-                                                                .foregroundStyle(Color.blackGray)
-                                                                .bold()
-                                                                .font(.system(size: 11))
+                                                                .textRepeatedTimesStyle()
                                                         }else if tododata[index].repeatTime == 3{
                                                             Text("已坚持\(tododata[index].times)月")
-                                                                .foregroundStyle(Color.blackGray)
-                                                                .bold()
-                                                                .font(.system(size: 11))
+                                                                .textRepeatedTimesStyle()
                                                         }
                                                         Text("截止日期")
                                                             .foregroundStyle(Color.blackGray)
@@ -543,27 +629,15 @@ struct SearchTodoView: View {
                                                         HStack{
                                                             if tododata[index].Day != 0{
                                                                 Text("\(tododata[index].Day)天")
-                                                                    .foregroundStyle(Color.blackGray)
-                                                                    .padding(.bottom, 0.5)
-                                                                    .padding(.horizontal, -3)
-                                                                    .bold()
-                                                                    .font(.system(size: 13))
+                                                                    .textTimeStyle()
                                                             }
                                                             if tododata[index].Hour != 0 {
                                                                 Text("\(tododata[index].Hour)时")
-                                                                    .foregroundStyle(Color.blackGray)
-                                                                    .padding(.bottom, 0.5)
-                                                                    .padding(.horizontal, -3)
-                                                                    .bold()
-                                                                    .font(.system(size: 13))
+                                                                    .textTimeStyle()
                                                             }
                                                             if tododata[index].Min != 0{
                                                                 Text("\(tododata[index].Min)分")
-                                                                    .foregroundStyle(Color.blackGray)
-                                                                    .padding(.bottom, 0.5)
-                                                                    .padding(.horizontal, -3)
-                                                                    .bold()
-                                                                    .font(.system(size: 13))
+                                                                    .textTimeStyle()
                                                             }
 //                                                            if tododata[index].Sec != 0{
 //                                                                Text("\(tododata[index].Sec)秒")
@@ -786,7 +860,6 @@ struct SearchTodoView: View {
                                     isAddDateAlertPresent = false
                                 })
                             }
-                            //TODO: check possibility for optimization
                             .onReceive(timer) { _ in
                                 // 计时器触发时更新时间
                                 if tododata.indices.contains(index) {

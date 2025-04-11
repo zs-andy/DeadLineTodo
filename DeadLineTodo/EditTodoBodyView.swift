@@ -239,19 +239,19 @@ struct EditTodoBodyView: View {
         let needTime = TimeInterval(edittodo.Day*24*60*60 + edittodo.Hour*60*60 + edittodo.Min*60)
         if ((/*edittodo.emergencyDate.timeIntervalSince1970 < Date().timeIntervalSince1970 ||*/ edittodo.emergencyDate.timeIntervalSince1970 > edittodo.endDate.timeIntervalSince1970 - needTime) && emergencyDate != edittodo.emergencyDate) || (edittodo.endDate.timeIntervalSince1970 < Date().timeIntervalSince1970 && endDate != edittodo.endDate) || (helper.getLeftTime(todo: edittodo) <= 0 && edittodo.endDate.timeIntervalSince1970 - edittodo.addDate.timeIntervalSince1970 < needTime){
             if (/*edittodo.emergencyDate.timeIntervalSince1970 < Date().timeIntervalSince1970 ||*/ edittodo.emergencyDate.timeIntervalSince1970 > edittodo.endDate.timeIntervalSince1970 - needTime) && emergencyDate != edittodo.emergencyDate{
-                helper.calendarPlusOne(calendarId: &calendarId, calendar2Id: &calendar2Id)
+                helper.calendarIdIterate(calendarId: &calendarId, calendar2Id: &calendar2Id)
                 showAlert = true
                 showAlertEmergencyTime = true
                 edittodo.emergencyDate = emergencyDate
             }
             if edittodo.endDate < Date() && endDate != edittodo.endDate{
-                helper.calendarPlusOne(calendarId: &calendarId, calendar2Id: &calendar2Id)
+                helper.calendarIdIterate(calendarId: &calendarId, calendar2Id: &calendar2Id)
                 showAlert = true
                 showAlertEndTime = true
                 edittodo.endDate = endDate
             }else{
                 if edittodo.endDate.timeIntervalSince1970 - edittodo.addDate.timeIntervalSince1970 < needTime{
-                    helper.calendarPlusOne(calendarId: &calendarId, calendar2Id: &calendar2Id)
+                    helper.calendarIdIterate(calendarId: &calendarId, calendar2Id: &calendar2Id)
                     showAlert = true
                     showAlertNeedTime = true
                     edittodo.Day = day
@@ -261,7 +261,7 @@ struct EditTodoBodyView: View {
                 }
             }
         } else {
-            helper.calendarPlusOne(calendarId: &calendarId, calendar2Id: &calendar2Id)
+            helper.calendarIdIterate(calendarId: &calendarId, calendar2Id: &calendar2Id)
             if edittodo.content == ""{
                 edittodo.content = NSLocalizedString("请输入任务内容", comment: "")
             }
@@ -282,10 +282,13 @@ struct EditTodoBodyView: View {
                 switch selectedPriority {
                 case 0:
                     edittodo.priority = 0
+                    break
                 case 1:
                     edittodo.priority = 1
+                    break
                 case 2:
                     edittodo.priority = 5
+                    break
                 case 3:
                     edittodo.priority = 9
                 default:

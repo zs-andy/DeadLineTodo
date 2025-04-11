@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 //Rename Helper.swift to something more meaningful
 class Helper {
@@ -39,7 +40,7 @@ class Helper {
         return day*60*60*24 + hour*60*60 + min*60
     }
     
-    func calendarPlusOne(calendarId: inout Int, calendar2Id: inout Int) {
+    func calendarIdIterate(calendarId: inout Int, calendar2Id: inout Int) {
         calendarId += 1
         calendar2Id += 1
     }
@@ -103,5 +104,31 @@ class Helper {
             }
         }
         return Int(score1 * 100 * 0.3) + Int(score2 * 0.7)
+    }
+    
+    func refreshTime(tododata: inout [TodoData], index: Int, EmergencyNum: inout Int, EditTodoIsPresent: Bool, AddTodoIsPresent: Bool) {
+        if tododata.indices.contains(index) {
+            if EditTodoIsPresent == false && AddTodoIsPresent == false && tododata[index].done == false{
+                if tododata[index].doing{
+                    tododata[index].actualFinishTime = tododata[index].lastTime + Date().timeIntervalSince1970 - tododata[index].startDoingDate.timeIntervalSince1970
+                }
+                tododata[index].leftTime = getLeftTime(todo: tododata[index])
+                if tododata[index].leftTime <= 60 {
+                    if tododata[index].emergency == false{
+                        withAnimation(.default){
+                            EmergencyNum += 1
+                        }
+                    }
+                    tododata[index].emergency = true
+                }else{
+                    if tododata[index].emergency == true{
+                        withAnimation(.default){
+                            EmergencyNum -= 1
+                        }
+                    }
+                    tododata[index].emergency = false
+                }
+            }
+        }
     }
 }

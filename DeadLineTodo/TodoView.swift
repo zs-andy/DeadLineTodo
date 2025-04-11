@@ -47,8 +47,13 @@ struct TodoView: View {
     @State var selectedDate = Date()
     @State var allowToTap = false
     
-    let reminderService = ReminderService();
-    let calendarService = CalendarService();
+    let reminderService = ReminderService()
+    let calendarService = CalendarService()
+    let notificationService = NotificationService()
+    let helper = Helper()
+    let service = Service()
+    let calendarHelper = CalendarHelper()
+    let reminderHelper = ReminderHelper()
     
     let addFirstTaskTip = FirstTaskTip()
     
@@ -282,42 +287,10 @@ struct TodoView: View {
             todo.emergency = false
             todo.done = true
             if todo.repeatTime != 0 {
-//                                                        let needTime =
                 var repeatTodo: TodoData = TodoData(content: todo.content, repeatTime: todo.repeatTime, priority: todo.priority, endDate: todo.endDate, addDate: Date(), doneDate: Date(), emergencyDate: todo.emergencyDate, startDoingDate: Date(), leftTime: 0,needTime: todo.initialNeedTime, actualFinishTime: 0, lastTime: 0, initialNeedTime: todo.initialNeedTime, Day: decomposeSeconds(totalSeconds: todo.initialNeedTime).days, Hour: decomposeSeconds(totalSeconds: todo.initialNeedTime).hours, Min: decomposeSeconds(totalSeconds: todo.initialNeedTime).minutes, Sec: decomposeSeconds(totalSeconds: todo.initialNeedTime).seconds, todo: true, done: false, emergency: false, doing: false, offset: 0, lastoffset: 0, score: 0, times: todo.times + 1)
-                if todo.repeatTime == 1 {
-                    repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24)
-                    repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24)
-                    repeatTodo.addDate = getStartOfDay(startDate: repeatTodo.emergencyDate)
-                    while repeatTodo.endDate < Date() {//改为endDate判断
-                        repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24)
-                        repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24)
-                        repeatTodo.addDate = getStartOfDay(startDate: repeatTodo.emergencyDate)
-                    }
-                    modelContext.insert(repeatTodo)
-                }else if todo.repeatTime == 2 {
-                    repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24*7)
-                    repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24*7)
-                    repeatTodo.addDate = getStartOfWeek(startDate: repeatTodo.emergencyDate)
-                    while repeatTodo.endDate < Date() {
-                        repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24*7)
-                        repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24*7)
-                        repeatTodo.addDate = getStartOfWeek(startDate: repeatTodo.emergencyDate)
-                    }
-                    modelContext.insert(repeatTodo)
-                }else if todo.repeatTime == 3 {
-                    repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24*7*30)
-                    repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24*7*30)
-                    repeatTodo.addDate = getStartOfMonth(startDate: repeatTodo.emergencyDate)
-                    while repeatTodo.endDate < Date() {
-                        repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24*7*30)
-                        repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24*7*30)
-                        repeatTodo.addDate = getStartOfMonth(startDate: repeatTodo.emergencyDate)
-                    }
-                    modelContext.insert(repeatTodo)
-                }
-                sendNotification1(todo: repeatTodo)
-                sendNotification2(todo: repeatTodo, day: Double(repeatTodo.Day), hour: Double(repeatTodo.Hour), min: Double(repeatTodo.Min))
-                sendNotification3(todo: repeatTodo)
+                
+                service.calculateRepeatTimeByEndDate(repeatTodo: &repeatTodo, repeatTime: todo.repeatTime, modelContext: modelContext)
+                notificationService.sendAllNotifications(todo: repeatTodo)
                 reminderService.addEventToReminders(title: repeatTodo.content, priority: repeatTodo.priority, dueDate: repeatTodo.endDate, remindDate: repeatTodo.emergencyDate, edittodo: todo)
                 let time = repeatTodo.Day*24*60*60 + repeatTodo.Hour*60*60 + repeatTodo.Min*60
                 calendarService.addEventToCalendar(title: repeatTodo.content, startDate: repeatTodo.emergencyDate, dueDate: Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + Double(time)))
