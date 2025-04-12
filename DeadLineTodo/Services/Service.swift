@@ -25,12 +25,12 @@ class Service {
     }
     
     func calculateRepeatTimeByEndDate (repeatTodo: inout TodoData, repeatTime: Int, modelContext: ModelContext) {
-        repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24)
-        repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24)
+        repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + periodTimes[repeatTime - 1])
+        repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + periodTimes[repeatTime - 1])
         repeatTodo.addDate = helper.getStartOfDay(startDate: repeatTodo.emergencyDate)
         while repeatTodo.endDate < Date() {//改为endDate判断
-            repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + 60*60*24)
-            repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + 60*60*24)
+            repeatTodo.endDate = Date(timeIntervalSince1970: repeatTodo.endDate.timeIntervalSince1970 + periodTimes[repeatTime - 1])
+            repeatTodo.emergencyDate = Date(timeIntervalSince1970: repeatTodo.emergencyDate.timeIntervalSince1970 + periodTimes[repeatTime - 1])
             repeatTodo.addDate = helper.getStartOfDay(startDate: repeatTodo.emergencyDate)
         }
         modelContext.insert(repeatTodo)

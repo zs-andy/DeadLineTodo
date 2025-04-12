@@ -48,6 +48,26 @@ struct textEndDateView: ViewModifier {
     }
 }
 
+struct textTitleView: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .foregroundStyle(Color.blackGray)
+            .bold()
+            .padding(.horizontal, -2)
+            .font(.system(size: 10))
+    }
+}
+
+struct imageIconView: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(5)
+            .bold()
+            .font(.system(size: 20))
+            .foregroundStyle(Color.blackBlue2)
+    }
+}
+
 extension View {
     public func textContentStyle() -> some View {
         self.modifier(textContentView())
@@ -63,6 +83,14 @@ extension View {
     
     public func textEndDateStyle() -> some View {
         self.modifier(textEndDateView())
+    }
+    
+    public func textTitleStyle() -> some View {
+        self.modifier(textTitleView())
+    }
+    
+    public func imageIconStyle() -> some View {
+        self.modifier(imageIconView())
     }
 }
 

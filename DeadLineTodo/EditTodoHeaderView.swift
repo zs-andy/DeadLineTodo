@@ -44,7 +44,7 @@ struct EditTodoHeaderView: View {
                 if edittodo.done {
                     //完成撤回按钮
                     Button(action:{
-                        notificationService.sendAllNotifications(todo: edittodo)
+                        notificationService.sendOneToThreeNotifications(todo: edittodo)
                         reminderService.addEventToReminders(title: edittodo.content, priority: selectedPriority, dueDate: edittodo.endDate, remindDate: edittodo.emergencyDate, edittodo: edittodo)
                         edittodo.done = false
                         edittodo.todo = true
@@ -69,7 +69,7 @@ struct EditTodoHeaderView: View {
                             notificationService.cancelAllNotifications(for: edittodo)
                             //Refactored the logic to Helper
                             service.calculateRepeatDay(edittodo: &edittodo, repeatTime: edittodo.repeatTime)
-                            notificationService.sendAllNotifications(todo: edittodo)
+                            notificationService.sendOneToThreeNotifications(todo: edittodo)
                             EditTodoIsPresent = false
                         }){
                             ZStack{

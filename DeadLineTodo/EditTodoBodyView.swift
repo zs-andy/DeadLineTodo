@@ -274,7 +274,7 @@ struct EditTodoBodyView: View {
             if edittodo.doing == true{
                 notificationService.sendNotification4(todo: edittodo)
             }
-            notificationService.sendAllNotifications(todo: edittodo)
+            notificationService.sendOneToThreeNotifications(todo: edittodo)
             if userSetting[0].reminder{
                 reminderService.editEventToReminders(title: title, priority: selectedPriority, editTo: edittodo.content, dueDate: edittodo.emergencyDate, remindDate: edittodo.emergencyDate, edittodo: edittodo)
             }else{

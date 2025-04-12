@@ -14,6 +14,31 @@ class ReminderService{
     func addEventToReminders(title: String, priority: Int, dueDate: Date, remindDate: Date, edittodo: TodoData){
         let newEvent = EKReminder(eventStore: eventStore)
         
+        newEvent.title = title
+        newEvent.calendar = eventStore.defaultCalendarForNewReminders()
+        newEvent.priority = self.setPriority(for: priority)
+        edittodo.priority = newEvent.priority
+        
+        let calendar = Calendar.current
+        let dueDateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
+        newEvent.dueDateComponents = dueDateComponents
+        
+        let alarm = EKAlarm(absoluteDate: remindDate)
+        newEvent.addAlarm(alarm)
+        
+        do {
+            try eventStore.save(newEvent, commit: true)
+            print(newEvent.priority)
+        } catch let error {
+            print("Reminder failed with error \(error)")
+        }
+    }
+        
+    func copyEventToReminders(title: String, priority: Int, dueDate: Date, remindDate: Date, edittodo: TodoData){
+        let newEvent = EKReminder(eventStore: eventStore)
+        
+        newEvent.title = title
+        newEvent.calendar = eventStore.defaultCalendarForNewReminders()
         newEvent.priority = self.setPriority(for: priority)
         edittodo.priority = newEvent.priority
         

@@ -1,14 +1,14 @@
 //
-//  NotificationHelper.swift
+//  NotificationService.swift
 //  DeadLineTodo
 //
-//  Created by Haiyao Zhou on 10/04/2025.
+//  Created by Haiyao Zhou on 12/04/2025.
 //
 
 import Foundation
 import SwiftUI
 
-class NotificationService {
+class NotificationService{
     let reminderService = ReminderService()
     let calendarService = CalendarService()
     
@@ -18,20 +18,17 @@ class NotificationService {
         }
     }
     
-    func sendAllNotifications(todo: TodoData) {
+    func sendOneToThreeNotifications(todo: TodoData) {
         sendNotification1(todo: todo)
         sendNotification2(todo: todo, day: Double(todo.Day), hour: Double(todo.Hour), min: Double(todo.Min))
         sendNotification3(todo: todo)
-        if todo.doing {
-            sendNotification4(todo: todo)
-        }
     }
     
     func sendNotification1(todo: TodoData) {
         let notificationContent = UNMutableNotificationContent()
         notificationContent.title = NSLocalizedString("将截止", comment: "")
         notificationContent.subtitle = todo.content
-
+        
         if getLeftTime(todo: todo) > 0{
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: getLeftTime(todo: todo), repeats: false)
             let req = UNNotificationRequest(identifier: todo.id.uuidString + "1", content: notificationContent, trigger: trigger)
@@ -44,8 +41,8 @@ class NotificationService {
         notificationContent.title = NSLocalizedString("已截止", comment: "")
         notificationContent.subtitle = todo.content
         
-        if getLeftTime(todo: todo) + getNeedTime(day: day, hour: hour, min: min) > 0 {
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: getLeftTime(todo: todo) + getNeedTime(day: day, hour: hour, min: min), repeats: false)
+        if (getLeftTime(todo: todo)) + getNeedTime(day: day, hour: hour, min: min) > 0 {
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: (getLeftTime(todo: todo)) + getNeedTime(day: day, hour: hour, min: min), repeats: false)
             let req = UNNotificationRequest(identifier: todo.id.uuidString + "2", content: notificationContent, trigger: trigger)
             UNUserNotificationCenter.current().add(req)
         }
