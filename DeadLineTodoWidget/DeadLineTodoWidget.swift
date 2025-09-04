@@ -127,6 +127,8 @@ struct MediumWidgetView: View {
     @Query(todoDescriptor) var tododata: [TodoData]
     @Query(descriptor) var todaytodo: [TodoData]
     
+    @State var rowWidth: CGFloat? = nil
+    
     func percentage(todaytodo: [TodoData]) -> Double{
         var num: Double = 0
         var sum: Double = 0
@@ -196,29 +198,57 @@ struct MediumWidgetView: View {
             return false
         }
     }
+    
+    func getSize(todo: TodoData, width: Double) -> CGFloat {
+        let needTime = todo.needTime - todo.actualFinishTime
+        let now = Date()
+        let total = todo.endDate.timeIntervalSince1970 - now.timeIntervalSince1970
+        let size = (Double(needTime) / total) * width
+        if size >= 0 && size <= width{
+            return size
+        }else{
+            return width
+        }
+    }
+    
+    func location(todo: TodoData, width: Double) -> CGFloat{
+        let now = Date()
+        let total = todo.endDate.timeIntervalSince1970 - now.timeIntervalSince1970
+        let l = ((todo.emergencyDate.timeIntervalSince1970 - now.timeIntervalSince1970) / total)*width
+        return l
+    }
 
     var body: some View {
         HStack{
             VStack {
                 ForEach(tododata) { todo in
-                    ZStack{
-                        if pastDue(todo: todo){
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(Color.creamPink)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 40)
-                                .opacity(0.5)
-                        }else{
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(Color.grayWhite2)
-                                .frame(maxWidth: .infinity)
+                    ZStack(){
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(Color.grayWhite2)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 40)
+                        ZStack(alignment: .leading){
+                            if getSize(todo: todo, width: rowWidth ?? 0) != rowWidth{
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(Color.grayWhite2)
+                                    .frame(height: 40)
+                                Rectangle()
+                                    .fill(Color.creamPink)
+                                    .frame(width: getSize(todo: todo, width: rowWidth ?? 0))
+                                    .frame(height: 40)
+                            }else{
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(Color.creamPink)
+                                    .frame(height: 40)
+                            }
+                            Rectangle()
+                                .fill(Color.creamBlue)
+                                .offset(x: location(todo: todo, width: rowWidth ?? 0))
+                                .frame(width: 2)
                                 .frame(height: 40)
                         }
                         VStack(alignment: .leading){
                             HStack() {
-        //                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-        //                            .fill(Color.creamBlue)
-        //                            .frame(width: 15, height:15)
                                 Text(todo.content)
                                     .padding(.horizontal, 10)
                                     .bold()
@@ -286,7 +316,18 @@ struct MediumWidgetView: View {
                             }
                         }
                     }
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(.trailing)
+                    .background(GeometryReader { geometry in
+                                        Color.clear.onAppear {
+                                            // 在 onAppear 中获取控件的宽度
+                                            rowWidth = geometry.size.width - 10
+                                        }
+                                        .onChange(of: geometry.size.width) { oldVlue, newValue in
+                                            // 当宽度发生变化时更新 rowWidth
+                                            rowWidth = newValue - 10
+                                        }
+                                    })
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -516,6 +557,27 @@ struct LargeWidgetView: View {
         }
     }
     
+    func getSize(todo: TodoData, width: Double) -> CGFloat {
+        let needTime = todo.needTime - todo.actualFinishTime
+        let now = Date()
+        let total = todo.endDate.timeIntervalSince1970 - now.timeIntervalSince1970
+        let size = (Double(needTime) / total) * width
+        if size >= 0 && size <= width{
+            return size
+        }else{
+            return width
+        }
+    }
+    
+    func location(todo: TodoData, width: Double) -> CGFloat{
+        let now = Date()
+        let total = todo.endDate.timeIntervalSince1970 - now.timeIntervalSince1970
+        let l = ((todo.emergencyDate.timeIntervalSince1970 - now.timeIntervalSince1970) / total)*width
+        return l
+    }
+    
+    @State var rowWidth: CGFloat? = nil
+    
     var body: some View {
         VStack{
             HStack{
@@ -564,24 +626,33 @@ struct LargeWidgetView: View {
             WidgetLineChartView(entry: entry)
             VStack{
                 ForEach(tododata) { todo in
-                    ZStack{
-                        if pastDue(todo: todo){
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(Color.creamPink)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 40)
-                                .opacity(0.5)
-                        }else{
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(Color.grayWhite2)
-                                .frame(maxWidth: .infinity)
+                    ZStack(){
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(Color.grayWhite2)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 40)
+                        ZStack(alignment: .leading){
+                            if getSize(todo: todo, width: rowWidth ?? 0) != rowWidth{
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(Color.grayWhite2)
+                                    .frame(height: 40)
+                                Rectangle()
+                                    .fill(Color.creamPink)
+                                    .frame(width: getSize(todo: todo, width: rowWidth ?? 0))
+                                    .frame(height: 40)
+                            }else{
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(Color.creamPink)
+                                    .frame(height: 40)
+                            }
+                            Rectangle()
+                                .fill(Color.creamBlue)
+                                .offset(x: location(todo: todo, width: rowWidth ?? 0))
+                                .frame(width: 2)
                                 .frame(height: 40)
                         }
                         VStack(alignment: .leading){
                             HStack() {
-        //                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-        //                            .fill(Color.creamBlue)
-        //                            .frame(width: 15, height:15)
                                 Text(todo.content)
                                     .padding(.horizontal, 10)
                                     .bold()
@@ -625,7 +696,7 @@ struct LargeWidgetView: View {
                                         }
                                         Spacer()
                                     }
-                                }else if (todo.endDate.timeIntervalSince1970 - Date().timeIntervalSince1970) <= 0{
+                                }else if (todo.endDate.timeIntervalSince1970 - entry.date.timeIntervalSince1970) <= 0{
                                     HStack{
                                         Text("已截止")
                                             .foregroundStyle(Color.creamBrown)
@@ -649,7 +720,18 @@ struct LargeWidgetView: View {
                             }
                         }
                     }
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding(.trailing)
+                    .background(GeometryReader { geometry in
+                                        Color.clear.onAppear {
+                                            // 在 onAppear 中获取控件的宽度
+                                            rowWidth = geometry.size.width - 10
+                                        }
+                                        .onChange(of: geometry.size.width) { oldVlue, newValue in
+                                            // 当宽度发生变化时更新 rowWidth
+                                            rowWidth = newValue - 10
+                                        }
+                                    })
                 }
                 if tododata.isEmpty {
                     Text("这周没有任务")

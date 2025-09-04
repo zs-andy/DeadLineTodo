@@ -18,6 +18,7 @@ struct StoreView: View {
     @Query var userSetting: [UserSetting]
     
     @EnvironmentObject var store: StoreKitManager
+    @Environment(\.modelContext) var modelContext
     
     var body: some View {
         VStack{
@@ -243,6 +244,37 @@ struct StoreView: View {
                     .padding(.vertical)
                 }
                 .frame(maxWidth: .infinity)
+            }
+        }
+        .onChange(of: store.purchasedCourses) { oldValue, newValue in
+            Task {
+                var hasPurchase1 = false
+                var hasPurchase2 = false
+                var hasPurchase3 = false
+                var hasPurchase4 = false
+                if store.storeProducts.count >= 1{
+                    hasPurchase1 = (try? await store.isPurchased(store.storeProducts[0])) ?? false
+                }
+                if store.storeProducts.count >= 2{
+                    hasPurchase2 = (try? await store.isPurchased(store.storeProducts[1])) ?? false
+                }
+                if store.storeProducts.count >= 3{
+                    hasPurchase3 = (try? await store.isPurchased(store.storeProducts[2])) ?? false
+                }
+                if store.storeProducts.count >= 4{
+                    hasPurchase4 = (try? await store.isPurchased(store.storeProducts[3])) ?? false
+                }
+                if hasPurchase1 || hasPurchase2 || hasPurchase3 || hasPurchase4 {
+                    store.hasPurchased = true
+                }
+                if store.hasPurchased{
+                    userSetting[0].hasPurchased = true
+                    
+                }else{
+                    userSetting[0].reminder = false
+                    userSetting[0].calendar = false
+                    userSetting[0].hasPurchased = false
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
