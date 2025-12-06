@@ -246,3 +246,20 @@
 "永久享受所有高级功能" = "Enjoy all premium features forever";
 "本周待办" = "This Week Todo";
 "完成热力图" = "Completion Heatmap";
+
+/* 新增的本地化字符串 */
+"30分钟" = "30 Min";
+"1小时" = "1 Hour";
+"2小时" = "2 Hours";
+"半天" = "Half Day";
+"1天" = "1 Day";
+"3天" = "3 Days";
+"1周" = "1 Week";
+"所需时间" = "Time Needed";
+"剩余" = "Remaining";
+
+/* 侧边栏导航 */
+"sidebar.todo" = "TODO";
+"sidebar.emergency" = "RUSH";
+"sidebar.done" = "DONE";
+"sidebar.statistics" = "DATA";

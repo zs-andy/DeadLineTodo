@@ -64,13 +64,14 @@ struct SidebarView: View {
                         ZStack {
                             RoundedRectangle(cornerRadius: 13, style: .continuous)
                                 .fill(currentView == .todo ? Color.blackBlue2 : Color.creamBlue)
-                                .frame(height: 85)
+                                .frame(height: 70)
                                 .padding(.horizontal, 5)
-                            VStack {
-                                Text("待")
+                            VStack(spacing: 4) {
+                                Image(systemName: "list.bullet")
                                     .bold()
                                     .foregroundStyle(currentView == .todo ? Color.grayWhite1 : Color.blackBlue2)
-                                Text("办")
+                                Text(NSLocalizedString("sidebar.todo", comment: ""))
+                                    .font(.system(size: 8))
                                     .bold()
                                     .foregroundStyle(currentView == .todo ? Color.grayWhite1 : Color.blackBlue2)
                             }
@@ -85,13 +86,13 @@ struct SidebarView: View {
                         ZStack {
                             RoundedRectangle(cornerRadius: 13, style: .continuous)
                                 .fill(currentView == .emergency ? Color.blackBlue2 : Color.creamBlue)
-                                .frame(height: 85)
+                                .frame(height: 70)
                                 .padding(.horizontal, 5)
-                            VStack {
-                                Text("紧")
-                                    .bold()
+                            VStack(spacing: 4) {
+                                Image(systemName: "bolt.fill")
                                     .foregroundStyle(currentView == .emergency ? Color.grayWhite1 : Color.blackBlue2)
-                                Text("急")
+                                Text(NSLocalizedString("sidebar.emergency", comment: ""))
+                                    .font(.system(size: 8))
                                     .bold()
                                     .foregroundStyle(currentView == .emergency ? Color.grayWhite1 : Color.blackBlue2)
                             }
@@ -120,13 +121,14 @@ struct SidebarView: View {
                         ZStack {
                             RoundedRectangle(cornerRadius: 13, style: .continuous)
                                 .fill(currentView == .done ? Color.blackBlue2 : Color.creamBlue)
-                                .frame(height: 85)
+                                .frame(height: 70)
                                 .padding(.horizontal, 5)
-                            VStack {
-                                Text("完")
+                            VStack(spacing: 4) {
+                                Image(systemName: "checkmark")
                                     .bold()
                                     .foregroundStyle(currentView == .done ? Color.grayWhite1 : Color.blackBlue2)
-                                Text("成")
+                                Text(NSLocalizedString("sidebar.done", comment: ""))
+                                    .font(.system(size: 8))
                                     .bold()
                                     .foregroundStyle(currentView == .done ? Color.grayWhite1 : Color.blackBlue2)
                             }
@@ -141,13 +143,13 @@ struct SidebarView: View {
                         ZStack {
                             RoundedRectangle(cornerRadius: 13, style: .continuous)
                                 .fill(currentView == .statistics ? Color.blackBlue2 : Color.creamBlue)
-                                .frame(height: 85)
+                                .frame(height: 70)
                                 .padding(.horizontal, 5)
-                            VStack {
-                                Text("统")
-                                    .bold()
+                            VStack(spacing: 4) {
+                                Image(systemName: "chart.bar.fill")
                                     .foregroundStyle(currentView == .statistics ? Color.grayWhite1 : Color.blackBlue2)
-                                Text("计")
+                                Text(NSLocalizedString("sidebar.statistics", comment: ""))
+                                    .font(.system(size: 8))
                                     .bold()
                                     .foregroundStyle(currentView == .statistics ? Color.grayWhite1 : Color.blackBlue2)
                             }

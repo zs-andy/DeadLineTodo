@@ -26,9 +26,27 @@ struct TodoCardView: View {
                 
                 // 内容
                 cardContent
+                
+                // 滑动提示图标
+                swipeHintIcon
             }
         }
         .buttonStyle(CardButtonStyle())
+    }
+    
+    // 滑动提示图标
+    private var swipeHintIcon: some View {
+        HStack {
+            Spacer()
+            VStack {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.blackGray.opacity(0.3))
+                    .padding(.trailing, 16)
+                    .padding(.top, 16)
+                Spacer()
+            }
+        }
     }
     
     // MARK: - Progress Background

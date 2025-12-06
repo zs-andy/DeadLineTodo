@@ -238,16 +238,16 @@ struct TodoListView: View {
                 guard todoData.indices.contains(index) else { return }
                 
                 let velocity = gesture.predictedEndTranslation.width - gesture.translation.width
-                let threshold: CGFloat = 45
+                let threshold: CGFloat = 60  // 增加阈值，减少误触
                 
                 // 根据滑动距离和速度判断
-                if todoData[index].offset <= -threshold || velocity < -100 {
+                if todoData[index].offset <= -threshold || velocity < -150 {
                     todoData[index].offset = -155
                     todoData[index].lastoffset = -155
                     allowToTap = true
                     
                     // 添加触觉反馈
-                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    let generator = UIImpactFeedbackGenerator(style: .medium)
                     generator.impactOccurred()
                 } else {
                     todoData[index].offset = 0
@@ -255,7 +255,7 @@ struct TodoListView: View {
                 }
                 
                 // 延迟重置拖动状态，防止误触
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
                     viewModel.isDragging = false
                 }
                 

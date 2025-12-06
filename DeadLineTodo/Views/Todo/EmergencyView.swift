@@ -154,21 +154,21 @@ struct EmergencyView: View {
                 guard todoData.indices.contains(index) else { return }
                 
                 let velocity = gesture.predictedEndTranslation.width - gesture.translation.width
-                let threshold: CGFloat = 45
+                let threshold: CGFloat = 60  // 增加阈值，减少误触
                 
-                if todoData[index].offset <= -threshold || velocity < -100 {
+                if todoData[index].offset <= -threshold || velocity < -150 {
                     todoData[index].offset = -155
                     todoData[index].lastoffset = -155
                     allowToTap = true
                     
-                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    let generator = UIImpactFeedbackGenerator(style: .medium)
                     generator.impactOccurred()
                 } else {
                     todoData[index].offset = 0
                     todoData[index].lastoffset = 0
                 }
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
                     viewModel.isDragging = false
                 }
             }

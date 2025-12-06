@@ -24,6 +24,9 @@ struct EditTodoView: View {
     @State private var calendar2Id = 0
     @State private var cancelTime = 0
     
+    // 编辑页主题色 - 使用灰色系搭配粉色
+    private let themeColor = Color.blackGray
+    
     // 原始值（用于取消时恢复）
     @State private var originalTitle = ""
     @State private var originalDay = 0
@@ -89,13 +92,13 @@ struct EditTodoView: View {
                 TextField(LocalizedStringKey("输入任务内容"), text: $todo.content)
                     .bold()
                     .padding()
-                    .foregroundStyle(Color.blackBlue1)
+                    .foregroundStyle(themeColor)
                     .font(.system(size: 25))
                 
                 headerActionButton
             }
         }
-        .background(Color.creamBlue)
+        .background(Color.creamPink)
     }
     
     @ViewBuilder
@@ -131,7 +134,7 @@ struct EditTodoView: View {
     private func smallButton(text: String) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: 13, style: .continuous)
-                .fill(Color.blackBlue2)
+                .fill(themeColor)
                 .frame(width: 50, height: 35)
             Text(LocalizedStringKey(text))
                 .bold()
@@ -144,16 +147,16 @@ struct EditTodoView: View {
     
     private var formContent: some View {
         ScrollView(showsIndicators: false) {
-            VStack {
-                pickerRow(title: "任务优先级", selection: $selectedPriority, options: priority)
-                pickerRow(title: "任务重复周期", selection: $todo.repeatTime, options: cycle)
+            VStack(spacing: 16) {
+                prioritySelector
+                cycleSelector
                 
                 DatePicker(LocalizedStringKey("开始日期"), selection: $todo.emergencyDate)
                     .foregroundStyle(Color.myBlack)
                     .datePickerStyle(.compact)
                     .padding(.horizontal)
                     .bold()
-                    .accentColor(.blackBlue2)
+                    .accentColor(themeColor)
                     .id(calendar2Id)
                 
                 DatePicker(LocalizedStringKey("截止日期"), selection: $todo.endDate)
@@ -161,78 +164,187 @@ struct EditTodoView: View {
                     .datePickerStyle(.compact)
                     .padding(.horizontal)
                     .bold()
-                    .accentColor(.blackBlue2)
+                    .accentColor(themeColor)
                     .id(calendarId)
                 
-                durationPicker
+                improvedDurationPicker
             }
         }
     }
     
-    private func pickerRow(title: String, selection: Binding<Int>, options: [String]) -> some View {
-        HStack {
-            Text(LocalizedStringKey(title))
+    // 优先级选择器 - 使用按钮组
+    private var prioritySelector: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(LocalizedStringKey("任务优先级"))
                 .bold()
                 .foregroundStyle(Color.myBlack)
-            Spacer()
-            Picker("", selection: selection) {
-                ForEach(0..<options.count, id: \.self) { i in
-                    Text(LocalizedStringKey(options[i]))
-                        .bold()
-                        .foregroundStyle(Color.myBlack)
+                .padding(.horizontal)
+            
+            HStack(spacing: 12) {
+                ForEach(0..<priority.count, id: \.self) { index in
+                    Button {
+                        selectedPriority = index
+                    } label: {
+                        Text(LocalizedStringKey(priority[index]))
+                            .bold()
+                            .font(.system(size: 15))
+                            .foregroundStyle(selectedPriority == index ? .white : Color.myBlack)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(selectedPriority == index ? themeColor : Color.white)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(selectedPriority == index ? themeColor : Color.gray.opacity(0.3), lineWidth: 1.5)
+                            )
+                    }
                 }
             }
-            .accentColor(Color.blackBlue1)
-            .pickerStyle(.menu)
+            .padding(.horizontal)
         }
-        .padding(.horizontal)
         .padding(.top, 10)
     }
     
-    private var durationPicker: some View {
-        VStack {
-            HStack {
-                Text(LocalizedStringKey("所需时间："))
-                    .foregroundStyle(Color.myBlack)
-                    .bold()
-                    .padding()
-                Spacer()
-            }
+    // 重复周期选择器 - 使用按钮组
+    private var cycleSelector: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(LocalizedStringKey("任务重复周期"))
+                .bold()
+                .foregroundStyle(Color.myBlack)
+                .padding(.horizontal)
             
-            HStack {
-                durationColumn(title: "天", selection: $todo.Day, range: 0..<32)
-                durationColumn(title: "时", selection: $todo.Hour, range: 0..<25)
-                durationColumn(title: "分", selection: $todo.Min, range: 0..<61)
+            HStack(spacing: 12) {
+                ForEach(0..<cycle.count, id: \.self) { index in
+                    Button {
+                        todo.repeatTime = index
+                    } label: {
+                        Text(LocalizedStringKey(cycle[index]))
+                            .bold()
+                            .font(.system(size: 15))
+                            .foregroundStyle(todo.repeatTime == index ? .white : Color.myBlack)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(todo.repeatTime == index ? themeColor : Color.white)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(todo.repeatTime == index ? themeColor : Color.gray.opacity(0.3), lineWidth: 1.5)
+                            )
+                    }
+                }
             }
             .padding(.horizontal)
         }
     }
     
-    private func durationColumn(title: String, selection: Binding<Int>, range: Range<Int>) -> some View {
-        VStack {
-            Text(LocalizedStringKey(title))
-                .foregroundStyle(Color.myBlack)
+    // 改进的时间选择器 - 使用滚轮选择器
+    private var improvedDurationPicker: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(LocalizedStringKey("所需时间"))
                 .bold()
-            Picker(title, selection: selection) {
-                ForEach(range, id: \.self) { Text("\($0)") }
+                .foregroundStyle(Color.myBlack)
+                .padding(.horizontal)
+            
+            // 快捷时间选项
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    quickTimeButton(label: "30分钟", days: 0, hours: 0, minutes: 30)
+                    quickTimeButton(label: "1小时", days: 0, hours: 1, minutes: 0)
+                    quickTimeButton(label: "2小时", days: 0, hours: 2, minutes: 0)
+                    quickTimeButton(label: "半天", days: 0, hours: 4, minutes: 0)
+                    quickTimeButton(label: "1天", days: 1, hours: 0, minutes: 0)
+                    quickTimeButton(label: "3天", days: 3, hours: 0, minutes: 0)
+                    quickTimeButton(label: "1周", days: 7, hours: 0, minutes: 0)
+                }
+                .padding(.horizontal)
+            }
+            
+            // 自定义时间输入 - 使用滚轮选择器
+            HStack(spacing: 0) {
+                pickerColumn(title: "天", selection: $todo.Day, range: 0...31)
+                pickerColumn(title: "时", selection: $todo.Hour, range: 0...23)
+                pickerColumn(title: "分", selection: $todo.Min, range: 0...59)
+            }
+            .frame(height: 150)
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.white)
+            )
+            .padding(.horizontal)
+        }
+    }
+    
+    // 滚轮选择器列
+    private func pickerColumn(title: String, selection: Binding<Int>, range: ClosedRange<Int>) -> some View {
+        VStack(spacing: 0) {
+            Text(LocalizedStringKey(title))
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(Color.blackGray)
+                .padding(.bottom, 8)
+            
+            Picker("", selection: selection) {
+                ForEach(range, id: \.self) { value in
+                    Text("\(value)")
+                        .font(.system(size: 20, weight: .medium))
+                        .tag(value)
+                }
             }
             .pickerStyle(.wheel)
-            .frame(height: 150)
+            .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity)
     }
+    
+    private func quickTimeButton(label: String, days: Int, hours: Int, minutes: Int) -> some View {
+        Button {
+            todo.Day = days
+            todo.Hour = hours
+            todo.Min = minutes
+        } label: {
+            Text(LocalizedStringKey(label))
+                .bold()
+                .font(.system(size: 15))
+                .foregroundStyle(
+                    (todo.Day == days && todo.Hour == hours && todo.Min == minutes) 
+                    ? .white : Color.myBlack
+                )
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(
+                            (todo.Day == days && todo.Hour == hours && todo.Min == minutes)
+                            ? themeColor : Color.white
+                        )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(
+                            (todo.Day == days && todo.Hour == hours && todo.Min == minutes)
+                            ? themeColor : Color.gray.opacity(0.3), 
+                            lineWidth: 1.5
+                        )
+                )
+        }
+    }
+    
+
     
     // MARK: - Bottom Buttons
     
     private var bottomButtons: some View {
         HStack {
             Button { cancel() } label: {
-                buttonLabel(text: "取消", color: Color.creamBlue)
+                buttonLabel(text: "取消", color: Color.creamPink)
             }
             .frame(maxWidth: .infinity)
             
             Button { confirm() } label: {
-                buttonLabel(text: "确定", color: Color.blackBlue2)
+                buttonLabel(text: "确定", color: themeColor)
             }
             .frame(maxWidth: .infinity)
         }
