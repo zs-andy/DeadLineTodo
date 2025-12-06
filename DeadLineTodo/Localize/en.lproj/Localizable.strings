@@ -103,8 +103,8 @@
 "月效率分数" = "Efficiency Score";
 "年效率分数" = "Efficiency Score";
 
-"周" = "W";
-"月" = "M";
+"周" = "Week";
+"月" = "Month";
 "年" = "Y";
 
 "优先级" = "Priority";
@@ -217,3 +217,32 @@
 
 "越快完成任务，效率分数越高" = "The faster you complete tasks, the higher your efficiency score.";
 
+"任务尚未开始" = "Task has not started yet.";
+
+"排序" = "Sort";
+
+"选择完成时间" = "Select Completion Time";
+
+"本周完成" = "This Week";
+"总任务" = "Total";
+"项" = "tasks";
+"以上为样例数据，购买高级功能解锁完整统计" = "Sample data above. Purchase premium features to unlock full statistics.";
+"效率热力图" = "Efficiency Heatmap";
+"效率分数" = "Efficiency Score";
+"完成时间" = "Completion Time";
+"时间差" = "Time Difference";
+"以上为样例数据" = "Sample data above";
+"一次购买，永久使用" = "One-time purchase, lifetime access";
+"每日订阅，自动续费" = "Daily subscription, auto-renew";
+"每周订阅，自动续费" = "Weekly subscription, auto-renew";
+"每月订阅，自动续费" = "Monthly subscription, auto-renew";
+"每年订阅，自动续费" = "Yearly subscription, auto-renew";
+"订阅，自动续费" = "Subscription, auto-renew";
+"消耗型购买" = "Consumable purchase";
+"非续订订阅" = "Non-renewable subscription";
+"购买" = "Purchase";
+"包含功能" = "Included Features";
+"解锁所有高级特性" = "Unlock all premium features";
+"永久享受所有高级功能" = "Enjoy all premium features forever";
+"本周待办" = "This Week Todo";
+"完成热力图" = "Completion Heatmap";
