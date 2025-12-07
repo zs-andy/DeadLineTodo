@@ -35,6 +35,10 @@ struct AddTodoView: View {
     @State private var isStorePresent = false
     @State private var emergencyTime = Date()
     
+    // 折叠状态
+    @State private var isPriorityExpanded = false
+    @State private var isCycleExpanded = false
+    
     private let priority = ["无", "高", "中", "低"]
     private let cycle = ["无", "天", "周", "月"]
     
@@ -122,11 +126,23 @@ struct AddTodoView: View {
     
     private var formContent: some View {
         VStack(spacing: 16) {
-            // 优先级
-            prioritySelector
+            // 优先级（可折叠）
+            collapsibleSection(
+                title: "任务优先级",
+                isExpanded: $isPriorityExpanded,
+                summary: priority[selectedPriority]
+            ) {
+                prioritySelectorContent
+            }
             
-            // 重复周期
-            cycleSelector
+            // 重复周期（可折叠）
+            collapsibleSection(
+                title: "任务重复周期",
+                isExpanded: $isCycleExpanded,
+                summary: cycle[selectedCycle]
+            ) {
+                cycleSelectorContent
+            }
             
             // 开始日期
             TipView(setStartTimeTip).padding(.horizontal)
@@ -155,76 +171,104 @@ struct AddTodoView: View {
             improvedDurationPicker
         }
     }
-
-    // MARK: - Form Components
     
-    // 优先级选择器 - 使用按钮组
-    private var prioritySelector: some View {
+    // MARK: - Collapsible Section
+    
+    private func collapsibleSection<Content: View>(
+        title: String,
+        isExpanded: Binding<Bool>,
+        summary: String,
+        @ViewBuilder content: @escaping () -> Content
+    ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(LocalizedStringKey("任务优先级"))
-                .bold()
-                .foregroundStyle(Color.myBlack)
-                .padding(.horizontal)
-            
-            HStack(spacing: 12) {
-                ForEach(0..<priority.count, id: \.self) { index in
-                    Button {
-                        selectedPriority = index
-                    } label: {
-                        Text(LocalizedStringKey(priority[index]))
-                            .bold()
-                            .font(.system(size: 15))
-                            .foregroundStyle(selectedPriority == index ? .white : Color.myBlack)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(selectedPriority == index ? Color.blackBlue2 : Color.white)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(selectedPriority == index ? Color.blackBlue2 : Color.gray.opacity(0.3), lineWidth: 1.5)
-                            )
-                    }
+            // 标题栏（可点击展开/折叠）
+            Button {
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    isExpanded.wrappedValue.toggle()
                 }
+            } label: {
+                HStack {
+                    Text(LocalizedStringKey(title))
+                        .bold()
+                        .foregroundStyle(Color.myBlack)
+                    
+                    Spacer()
+                    
+                    if !isExpanded.wrappedValue {
+                        Text(LocalizedStringKey(summary))
+                            .font(.system(size: 14))
+                            .foregroundStyle(Color.blackGray)
+                    }
+                    
+                    Image(systemName: isExpanded.wrappedValue ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.blackGray)
+                }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
+            
+            // 展开内容
+            if isExpanded.wrappedValue {
+                content()
+            }
         }
         .padding(.top, 10)
     }
+
+    // MARK: - Form Components
     
-    // 重复周期选择器 - 使用按钮组
-    private var cycleSelector: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(LocalizedStringKey("任务重复周期"))
-                .bold()
-                .foregroundStyle(Color.myBlack)
-                .padding(.horizontal)
-            
-            HStack(spacing: 12) {
-                ForEach(0..<cycle.count, id: \.self) { index in
-                    Button {
-                        selectedCycle = index
-                    } label: {
-                        Text(LocalizedStringKey(cycle[index]))
-                            .bold()
-                            .font(.system(size: 15))
-                            .foregroundStyle(selectedCycle == index ? .white : Color.myBlack)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(selectedCycle == index ? Color.blackBlue2 : Color.white)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(selectedCycle == index ? Color.blackBlue2 : Color.gray.opacity(0.3), lineWidth: 1.5)
-                            )
-                    }
+    // 优先级选择器内容
+    private var prioritySelectorContent: some View {
+        HStack(spacing: 12) {
+            ForEach(0..<priority.count, id: \.self) { index in
+                Button {
+                    selectedPriority = index
+                } label: {
+                    Text(LocalizedStringKey(priority[index]))
+                        .bold()
+                        .font(.system(size: 15))
+                        .foregroundStyle(selectedPriority == index ? .white : Color.myBlack)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(selectedPriority == index ? Color.blackBlue2 : Color.white)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(selectedPriority == index ? Color.blackBlue2 : Color.gray.opacity(0.3), lineWidth: 1.5)
+                        )
                 }
             }
-            .padding(.horizontal)
         }
+        .padding(.horizontal)
+    }
+    
+    // 重复周期选择器内容
+    private var cycleSelectorContent: some View {
+        HStack(spacing: 12) {
+            ForEach(0..<cycle.count, id: \.self) { index in
+                Button {
+                    selectedCycle = index
+                } label: {
+                    Text(LocalizedStringKey(cycle[index]))
+                        .bold()
+                        .font(.system(size: 15))
+                        .foregroundStyle(selectedCycle == index ? .white : Color.myBlack)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(selectedCycle == index ? Color.blackBlue2 : Color.white)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(selectedCycle == index ? Color.blackBlue2 : Color.gray.opacity(0.3), lineWidth: 1.5)
+                        )
+                }
+            }
+        }
+        .padding(.horizontal)
     }
     
     private func datePicker(title: String, selection: Binding<Date>, id: Int, onChange: @escaping () -> Void) -> some View {
@@ -257,8 +301,10 @@ struct AddTodoView: View {
                     quickTimeButton(label: "3天", days: 3, hours: 0, minutes: 0)
                     quickTimeButton(label: "1周", days: 7, hours: 0, minutes: 0)
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 4)
             }
+            .scrollClipDisabled()
             
             // 自定义时间输入 - 使用滚轮选择器
             HStack(spacing: 0) {

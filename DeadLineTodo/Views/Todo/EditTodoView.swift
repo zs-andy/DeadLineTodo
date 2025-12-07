@@ -260,8 +260,10 @@ struct EditTodoView: View {
                     quickTimeButton(label: "3天", days: 3, hours: 0, minutes: 0)
                     quickTimeButton(label: "1周", days: 7, hours: 0, minutes: 0)
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 4)
             }
+            .scrollClipDisabled()
             
             // 自定义时间输入 - 使用滚轮选择器
             HStack(spacing: 0) {
@@ -483,13 +485,13 @@ struct EditTodoView: View {
             todo.priority = [0, 1, 5, 9][min(selectedPriority, 3)]
         }
         
-        // 更新日历
+        // 更新日历（开始时间为emergencyDate，结束时间为endDate）
         if !userSettings.isEmpty && userSettings[0].calendar {
             calendarService.editEvent(
                 oldTitle: originalTitle,
                 newTitle: todo.content,
                 startDate: todo.emergencyDate,
-                endDate: Date(timeIntervalSince1970: todo.emergencyDate.timeIntervalSince1970 + needTime)
+                endDate: todo.endDate
             )
         } else {
             calendarService.deleteEvent(title: originalTitle)

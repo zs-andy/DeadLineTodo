@@ -288,8 +288,8 @@ struct TodoListView: View {
         
         let todo = todoData[index]
         notificationService.cancelAllNotifications(for: todo)
-        reminderService.removeReminder(title: todo.content)
-        calendarService.deleteEvent(title: todo.content)
+        reminderService.removeReminder(todoId: todo.id, title: todo.content)
+        calendarService.deleteEvent(todoId: todo.id, title: todo.content)
         
         if todo.emergency { emergencyNum -= 1 }
         modelContext.delete(todo)
@@ -336,19 +336,13 @@ struct TodoListView: View {
         guard !userSettings.isEmpty else { return }
         
         if userSettings[0].reminder {
-            // 同步提醒事项
-            let newTodos = reminderService.syncReminders(existingTodos: todoData)
-            newTodos.forEach { modelContext.insert($0) }
+            // 从外部提醒事项同步修改到App
+            reminderService.syncExternalChanges(existingTodos: todoData) {}
         }
         
         if userSettings[0].calendar {
-            // 同步日历事件
-            let newTodos = calendarService.syncEvents(
-                selectedCalendars: userSettings[0].selectedOptions,
-                existingTodos: todoData,
-                modelContext: modelContext
-            )
-            newTodos.forEach { modelContext.insert($0) }
+            // 从外部日历同步修改到App
+            calendarService.syncExternalChanges(existingTodos: todoData)
         }
     }
 }

@@ -17,7 +17,9 @@ struct StoreView: View {
     @Environment(\.modelContext) private var modelContext
     
     @State private var showThanks = false
-    @State private var emptyProduct = false
+    @State private var showRestoreAlert = false
+    @State private var restoreMessage = ""
+    @State private var isRestoring = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -58,10 +60,20 @@ struct StoreView: View {
         .onChange(of: store.purchasedCourses) { _, _ in
             Task { await checkPurchaseStatus() }
         }
-        .alert(Text(LocalizedStringKey("提醒")), isPresented: $emptyProduct) {
-            Button(LocalizedStringKey("确定")) { emptyProduct = false }
+        .onChange(of: store.hasPurchased) { _, newValue in
+            // 购买状态变化时同步到UserSetting
+            if !userSettings.isEmpty {
+                userSettings[0].hasPurchased = newValue
+            }
+        }
+        .alert(Text(LocalizedStringKey("提醒")), isPresented: $showRestoreAlert) {
+            Button(LocalizedStringKey("确定")) { showRestoreAlert = false }
         } message: {
-            Text(LocalizedStringKey("商品未加载"))
+            Text(LocalizedStringKey(restoreMessage))
+        }
+        .task {
+            // 视图出现时检查购买状态
+            await store.checkEntitlementsDirectly()
         }
     }
     
@@ -91,13 +103,69 @@ struct StoreView: View {
     
     private var productCard: some View {
         VStack(spacing: 16) {
-            if store.storeProducts.isEmpty {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle())
-                    .padding(40)
-            } else if store.hasPurchased {
+            if store.hasPurchased {
+                // 已购买状态优先显示
                 purchasedCard
+            } else if store.isLoading {
+                // 加载中
+                VStack(spacing: 12) {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                    Text(LocalizedStringKey("正在加载..."))
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.blackGray)
+                }
+                .padding(40)
+            } else if let error = store.loadError {
+                // 加载失败，显示错误和重试按钮
+                VStack(spacing: 12) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 32))
+                        .foregroundStyle(Color.orange)
+                    
+                    Text(LocalizedStringKey(error))
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color.blackGray)
+                        .multilineTextAlignment(.center)
+                    
+                    Button {
+                        Task { await store.retryLoadProducts() }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.clockwise")
+                                .font(.system(size: 12))
+                            Text(LocalizedStringKey("重新加载"))
+                                .font(.system(size: 13, weight: .medium))
+                        }
+                        .foregroundStyle(Color.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(Color.blackBlue2)
+                        )
+                    }
+                }
+                .padding(30)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color.grayWhite2.opacity(0.6))
+                )
+            } else if store.storeProducts.isEmpty {
+                // 商品为空但无错误，尝试加载
+                VStack(spacing: 12) {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                    Text(LocalizedStringKey("正在连接App Store..."))
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.blackGray)
+                }
+                .padding(40)
+                .task {
+                    await store.requestProducts()
+                }
             } else {
+                // 显示商品列表
                 ForEach(store.storeProducts) { product in
                     purchaseButton(product: product)
                 }
@@ -250,12 +318,18 @@ struct StoreView: View {
     private var footerLinks: some View {
         VStack(spacing: 12) {
             Button {
-                Task { try? await AppStore.sync() }
+                Task { await restorePurchases() }
             } label: {
                 HStack(spacing: 6) {
-                    Image(systemName: "arrow.clockwise.circle")
-                        .font(.system(size: 12))
-                    Text(LocalizedStringKey("恢复购买"))
+                    if isRestoring {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                            .scaleEffect(0.7)
+                    } else {
+                        Image(systemName: "arrow.clockwise.circle")
+                            .font(.system(size: 12))
+                    }
+                    Text(LocalizedStringKey(isRestoring ? "正在恢复..." : "恢复购买"))
                         .font(.system(size: 12, weight: .medium))
                 }
                 .foregroundStyle(Color.blackBlue2)
@@ -266,6 +340,7 @@ struct StoreView: View {
                         .fill(Color.grayWhite2.opacity(0.6))
                 )
             }
+            .disabled(isRestoring)
             
             HStack(spacing: 16) {
                 Link("EULA", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
@@ -281,6 +356,27 @@ struct StoreView: View {
                     .font(.system(size: 10))
             }
         }
+    }
+    
+    // MARK: - Restore Purchases
+    
+    private func restorePurchases() async {
+        isRestoring = true
+        
+        do {
+            try await store.restorePurchases()
+            
+            if store.hasPurchased {
+                restoreMessage = "购买已恢复"
+            } else {
+                restoreMessage = "未找到购买记录"
+            }
+        } catch {
+            restoreMessage = "恢复失败，请稍后重试"
+        }
+        
+        isRestoring = false
+        showRestoreAlert = true
     }
     
     // MARK: - Helper

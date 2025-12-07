@@ -38,6 +38,9 @@ struct SettingsView: View {
             
             ScrollView {
                 VStack {
+                    // 高级功能（放在顶部）
+                    premiumButton
+                    
                     // 评分按钮
                     rateButton
                     
@@ -51,9 +54,6 @@ struct SettingsView: View {
                     if calendar {
                         calendarSelection
                     }
-                    
-                    // 高级功能
-                    premiumButton
                     
                     Spacer()
                 }
@@ -141,16 +141,56 @@ struct SettingsView: View {
     }
     
     private var premiumButton: some View {
-        HStack {
-            Button { isStorePresent = true } label: {
-                Text(LocalizedStringKey("获取高级功能"))
-                    .bold()
-                    .foregroundStyle(Color.myBlack)
+        Button { isStorePresent = true } label: {
+            HStack(spacing: 12) {
+                // 图标
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.creamPink, Color.creamPink.opacity(0.7)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 40, height: 40)
+                    
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 18))
+                        .foregroundStyle(.white)
+                }
+                
+                // 文字
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(LocalizedStringKey("获取高级功能"))
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(Color.myBlack)
+                    
+                    Text(LocalizedStringKey("解锁所有高级特性"))
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color.blackGray)
+                }
+                
+                Spacer()
+                
+                // 箭头
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color.creamPink)
             }
-            Spacer()
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color.white)
+                    .shadow(color: Color.creamPink.opacity(0.15), radius: 8, x: 0, y: 4)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(Color.creamPink.opacity(0.3), lineWidth: 1.5)
+            )
         }
         .padding(.horizontal, 20)
-        .padding(.top, 10)
+        .padding(.top, 16)
     }
     
     // MARK: - Helper Methods

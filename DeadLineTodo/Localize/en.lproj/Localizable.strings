@@ -263,3 +263,14 @@
 "sidebar.emergency" = "RUSH";
 "sidebar.done" = "DONE";
 "sidebar.statistics" = "DATA";
+
+/* 商店相关 */
+"正在加载..." = "Loading...";
+"正在连接App Store..." = "Connecting to App Store...";
+"重新加载" = "Retry";
+"正在恢复..." = "Restoring...";
+"购买已恢复" = "Purchase restored";
+"未找到购买记录" = "No purchase found";
+"恢复失败，请稍后重试" = "Restore failed, please try again";
+"加载失败，请检查网络" = "Failed to load, please check network";
+"恢复购买失败，请稍后重试" = "Restore failed, please try again later";
