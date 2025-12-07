@@ -37,23 +37,25 @@ struct StoreView: View {
                 .padding(.trailing, 16)
             }
             
-            VStack(spacing: 16) {
-                // 标题和副标题
-                headerSection
-                
-                // 产品卡片
-                productCard
-                
-                // 功能列表
-                featureList
-                
-                Spacer()
-                
-                // 恢复购买和链接
-                footerLinks
+            // 标题和副标题（固定）
+            headerSection
+                .padding(.horizontal, 20)
+                .padding(.bottom, 12)
+            
+            ScrollView {
+                VStack(spacing: 16) {
+                    // 产品卡片
+                    productCard
+                    
+                    // 功能列表
+                    featureList
+                    
+                    // 恢复购买和链接
+                    footerLinks
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 20)
             }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.grayWhite1)
@@ -253,13 +255,20 @@ struct StoreView: View {
             return LocalizedStringKey("一次购买，永久使用")
         case .autoRenewable:
             if let subscription = product.subscription {
-                let unit = subscription.subscriptionPeriod.unit
+                let period = subscription.subscriptionPeriod
+                let unit = period.unit
+                let value = period.value
+                
                 switch unit {
                 case .day:
                     return LocalizedStringKey("每日订阅，自动续费")
                 case .week:
                     return LocalizedStringKey("每周订阅，自动续费")
                 case .month:
+                    // 季度订阅是 3 个月
+                    if value == 3 {
+                        return LocalizedStringKey("每季订阅，自动续费")
+                    }
                     return LocalizedStringKey("每月订阅，自动续费")
                 case .year:
                     return LocalizedStringKey("每年订阅，自动续费")
