@@ -20,7 +20,6 @@ struct SearchTodoView: View {
     @StateObject private var viewModel = SearchViewModel()
     @State private var searchText = ""
     @State private var editTodoIsPresent = false
-    @State private var rowWidth: CGFloat?
     @State private var isShowingDatePicker = false
     @State private var selectedDate = Date()
     @State private var allowToTap = false
@@ -88,25 +87,27 @@ struct SearchTodoView: View {
         ZStack {
             HStack {
                 Spacer()
-                actionButtons(at: index).offset(x: -2)
+                let maxOffset: CGFloat = todoData[index].done ? 65 : 160
+                actionButtons(at: index)
+                    .offset(x: min(0, todoData[index].offset + maxOffset))
+                    .opacity(Double(-todoData[index].offset) / maxOffset)
             }
             
-            ZStack {
-                RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.grayWhite2)
-                TodoCardView(todo: todoData[index], rowWidth: rowWidth ?? 0) {
-                    guard todoData[index].offset == 0 && !viewModel.isDragging else { return }
-                    viewModel.selectedIndex = index
-                    editTodoIsPresent = true
-                }
-                .simultaneousGesture(swipeGesture(at: index))
+            Button(action: {
+                viewModel.selectedIndex = index
+                editTodoIsPresent = true
+            }) {
+                TodoCardView(todo: todoData[index], rowWidth: .zero, onTap: {})
+                    .opacity(0)
+                    .overlay(
+                        GeometryReader { geo in
+                            TodoCardView(todo: todoData[index], rowWidth: geo.size.width, onTap: {})
+                        }
+                    )
+                    .simultaneousGesture(swipeGesture(at: index))
             }
-            .background(GeometryReader { geo in
-                Color.clear.onAppear { rowWidth = geo.size.width }
-                    .onChange(of: geo.size.width) { _, newValue in rowWidth = newValue }
-            })
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .offset(x: todoData[index].offset)
-            .animation(.spring(response: 0.3, dampingFraction: 0.8), value: todoData[index].offset)
         }
         .padding(.top)
     }
@@ -139,47 +140,33 @@ struct SearchTodoView: View {
     }
     
     private func swipeGesture(at index: Int) -> some Gesture {
-        DragGesture()
+        DragGesture(minimumDistance: 20)
             .onChanged { gesture in
-                guard gesture.translation.width < 0 || todoData[index].lastoffset != 0 else { return }
-                
-                viewModel.isDragging = true
-                allowToTap = false
-                
-                let translation = gesture.translation.width
-                let newOffset = todoData[index].lastoffset + translation
-                
-                let maxOffset: CGFloat = todoData[index].done ? -65 : -155
-                if newOffset < maxOffset {
-                    let excess = maxOffset - newOffset
-                    todoData[index].offset = maxOffset - excess * 0.3
-                } else if newOffset > 0 {
-                    todoData[index].offset = newOffset * 0.3
-                } else {
-                    todoData[index].offset = newOffset
+                if gesture.translation.width < 0 || todoData[index].lastoffset != 0 {
+                    allowToTap = false
+                    withAnimation(.linear(duration: 0.05)) {
+                        todoData[index].offset = todoData[index].lastoffset + gesture.translation.width
+                    }
                 }
             }
             .onEnded { gesture in
-                guard todoData.indices.contains(index) else { return }
-                
-                let velocity = gesture.predictedEndTranslation.width - gesture.translation.width
-                let threshold: CGFloat = 45
-                let targetOffset: CGFloat = todoData[index].done ? -65 : -155
-                
-                if todoData[index].offset <= -threshold || velocity < -100 {
-                    todoData[index].offset = targetOffset
-                    todoData[index].lastoffset = targetOffset
-                    allowToTap = true
+                if todoData.indices.contains(index) {
+                    let targetOffset: CGFloat = todoData[index].done ? -65 : -160
                     
-                    let generator = UIImpactFeedbackGenerator(style: .light)
-                    generator.impactOccurred()
-                } else {
-                    todoData[index].offset = 0
-                    todoData[index].lastoffset = 0
-                }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    viewModel.isDragging = false
+                    if todoData[index].offset <= -70 {
+                        withAnimation(.smooth(duration: 0.4)) {
+                            if todoData.indices.contains(index) {
+                                todoData[index].offset = targetOffset
+                                todoData[index].lastoffset = targetOffset
+                            }
+                            allowToTap = true
+                        }
+                    } else {
+                        withAnimation(.smooth(duration: 0.4)) {
+                            todoData[index].offset = 0
+                            todoData[index].lastoffset = 0
+                        }
+                    }
                 }
             }
     }
@@ -228,6 +215,5 @@ struct SearchTodoView: View {
 extension SearchTodoView {
     @MainActor final class SearchViewModel: ObservableObject {
         @Published var selectedIndex = 0
-        @Published var isDragging = false
     }
 }

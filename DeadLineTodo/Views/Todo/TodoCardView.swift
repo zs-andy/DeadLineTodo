@@ -15,157 +15,199 @@ struct TodoCardView: View {
     
     private let todoService = TodoService.shared
     
+    // 使用计算属性替代 @State，避免横竖屏切换时的状态同步问题
+    private var scaleData: (widths: [CGFloat], colors: [Bool], labels: [(position: CGFloat, text: String)]) {
+        calculateScaleData(width: rowWidth)
+    }
+    
     var body: some View {
-        Button(action: onTap) {
-            ZStack(alignment: .topLeading) {
-                // 背景和进度条
-                progressBackground
-                
-                // 紧急线
-                emergencyLine
-                
-                // 内容
-                cardContent
-                
-                // 滑动提示图标
-                swipeHintIcon
-            }
-        }
-        .buttonStyle(CardButtonStyle())
-    }
-    
-    // 滑动提示图标
-    private var swipeHintIcon: some View {
-        HStack {
-            Spacer()
-            VStack {
-                Image(systemName: "ellipsis")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(Color.blackGray.opacity(0.3))
-                    .padding(.trailing, 16)
-                    .padding(.top, 16)
-                Spacer()
-            }
+        ZStack(alignment: .topLeading) {
+            scaleBackground
+            taskBlock
+            cardContent
         }
     }
     
-    // MARK: - Progress Background
+    private func calculateScaleData(width: CGFloat) -> (widths: [CGFloat], colors: [Bool], labels: [(position: CGFloat, text: String)]) {
+        guard !todo.done, width > 0 else {
+            return ([], [], [])
+        }
+        
+        let scales = getScales()
+        let totalSeconds = todo.endDate.timeIntervalSince1970 - Date().timeIntervalSince1970
+        
+        guard totalSeconds > 0 else {
+            return ([], [], [])
+        }
+        
+        var widths: [CGFloat] = []
+        var colors: [Bool] = []
+        for index in 0...scales.count {
+            let startTime = index == 0 ? Date().timeIntervalSince1970 : scales[index - 1].timeIntervalSince1970
+            let endTime = index == scales.count ? todo.endDate.timeIntervalSince1970 : scales[index].timeIntervalSince1970
+            let w = max((endTime - startTime) / totalSeconds * width, 0)
+            widths.append(w)
+            colors.append(index % 2 == 0)
+        }
+        
+        let interval = max(Int(ceil(CGFloat(scales.count) * 60 / width)), 1)
+        var positions: [(CGFloat, String)] = []
+        for (index, scale) in scales.enumerated() {
+            if index % interval == 0 {
+                let pos = (scale.timeIntervalSince1970 - Date().timeIntervalSince1970) / totalSeconds * width
+                positions.append((pos - 12, scale.timeString))
+            }
+        }
+        
+        return (widths, colors, positions)
+    }
     
     @ViewBuilder
-    private var progressBackground: some View {
-        let progressWidth = todoService.getProgressWidth(for: todo, totalWidth: rowWidth)
+    private var scaleBackground: some View {
+        let data = scaleData
         
-        if progressWidth < rowWidth {
+        ZStack(alignment: .leading) {
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(Color.grayWhite2)
-            Rectangle()
-                .fill(Color.creamPink)
-                .frame(width: max(0, progressWidth))
-        } else {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Color.creamPink)
+            
+            if !data.widths.isEmpty {
+                HStack(spacing: 0) {
+                    ForEach(0..<data.widths.count, id: \.self) { index in
+                        Rectangle()
+                            .fill(data.colors[index] ? Color.grayWhite2 : Color.grayWhite1.opacity(0.5))
+                            .frame(width: data.widths[index])
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .drawingGroup()
+            }
+            
+            progressBlockView
+            
+            if !data.labels.isEmpty {
+                ZStack(alignment: .leading) {
+                    ForEach(0..<data.labels.count, id: \.self) { index in
+                        Text(data.labels[index].text)
+                            .font(.system(size: 7))
+                            .foregroundStyle(Color.blackGray.opacity(0.4))
+                            .offset(x: data.labels[index].position)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                .padding(.bottom, 3)
+            }
         }
     }
     
-    // MARK: - Emergency Line
-    
-    private var emergencyLine: some View {
-        Rectangle()
-            .fill(Color.creamBlue)
-            .offset(x: todoService.getEmergencyLinePosition(for: todo, totalWidth: rowWidth))
-            .frame(width: 2)
+    @ViewBuilder
+    private var progressBlockView: some View {
+        if !todo.done && rowWidth > 0 {
+            let size = getSize(width: rowWidth)
+            if size != rowWidth {
+                Rectangle()
+                    .fill(Color.creamPink.opacity(0.85))
+                    .frame(width: size)
+                    .offset(x: getLocation(width: rowWidth))
+            } else {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(Color.creamPink.opacity(0.85))
+            }
+        }
     }
-
-    // MARK: - Card Content
     
+    private func getScales() -> [Date] {
+        let now = Date()
+        let end = todo.endDate
+        let totalSeconds = end.timeIntervalSince1970 - now.timeIntervalSince1970
+        var scales: [Date] = []
+        let calendar = Calendar.current
+        
+        guard totalSeconds > 0 else { return scales }
+        
+        if totalSeconds <= 3600 {
+            var date = calendar.date(bySetting: .minute, value: (calendar.component(.minute, from: now) / 10 + 1) * 10, of: now) ?? now
+            date = calendar.date(bySetting: .second, value: 0, of: date) ?? date
+            while date < end { scales.append(date); date = date.addingTimeInterval(600) }
+        } else if totalSeconds <= 86400 {
+            var date = calendar.date(bySettingHour: calendar.component(.hour, from: now) + 1, minute: 0, second: 0, of: now) ?? now
+            while date < end { scales.append(date); date = date.addingTimeInterval(3600) }
+        } else {
+            var date = calendar.startOfDay(for: now.addingTimeInterval(86400))
+            while date < end { scales.append(date); date = date.addingTimeInterval(86400) }
+        }
+        return scales
+    }
+    
+    private func getSize(width: Double) -> CGFloat {
+        let needTime = todo.needTime - todo.actualFinishTime
+        let total = todo.endDate.timeIntervalSince1970 - Date().timeIntervalSince1970
+        guard total > 0 else { return width }
+        let size = (Double(needTime) / total) * width
+        return (size >= 0 && size <= width) ? size : width
+    }
+    
+    private func getLocation(width: Double) -> CGFloat {
+        let total = todo.endDate.timeIntervalSince1970 - Date().timeIntervalSince1970
+        guard total > 0 else { return 0 }
+        return ((todo.emergencyDate.timeIntervalSince1970 - Date().timeIntervalSince1970) / total) * width
+    }
+    
+    private var taskBlock: some View { EmptyView() }
+
     private var cardContent: some View {
         VStack {
             HStack {
-                // 左侧：标题和截止日期
                 VStack(alignment: .leading) {
                     titleText
                     repeatTimesText
-                    
-                    Text("截止日期")
-                        .textTitleStyle()
+                    Text("截止日期").textTitleStyle()
                     Text("\(todo.endDate.localizedDateString) \(todo.endDate.timeString)")
-                        .foregroundStyle(Color.blackGray)
-                        .bold()
-                        .font(.system(size: 12))
+                        .foregroundStyle(Color.blackGray).bold().font(.system(size: 12))
                 }
-                
                 Spacer()
-                
-                // 右侧：剩余时间或状态
                 VStack(alignment: .trailing) {
-                    if todo.done {
-                        doneStatusView
-                    } else {
-                        activeStatusView
-                    }
+                    if todo.done { doneStatusView } else { activeStatusView }
                 }
-            }
-            .padding()
+            }.padding()
         }
     }
     
-    // MARK: - Title
-    
     private var titleText: some View {
-        let suffix = prioritySuffix
-        return Text("\(todo.content)\(suffix)")
+        Text("\(todo.content)\(prioritySuffix)")
             .textContentStyle()
             .padding(.bottom, todo.repeatTime == 0 ? 8 : 0)
     }
     
     private var prioritySuffix: String {
         switch todo.priority {
-        case 1: return "!!!"
-        case 5: return "!!"
-        case 9: return "!"
-        default: return ""
+        case 1: return "!!!"; case 5: return "!!"; case 9: return "!"; default: return ""
         }
     }
-    
-    // MARK: - Repeat Times
     
     @ViewBuilder
     private var repeatTimesText: some View {
         if todo.repeatTime > 0 {
-            let unit = ["天", "周", "月"][todo.repeatTime - 1]
-            Text("已坚持\(todo.times)\(unit)")
+            Text("已坚持\(todo.times)\(["天", "周", "月"][todo.repeatTime - 1])")
                 .textRepeatedTimesStyle()
         }
     }
     
-    // MARK: - Done Status
-    
     private var doneStatusView: some View {
         VStack(alignment: .trailing) {
-            Text("实际完成时长")
-                .textTitleStyle()
+            Text("实际完成时长").textTitleStyle()
             actualFinishTimeText
-            
             Spacer()
-            
-            Text("完成时间")
-                .textTitleStyle()
+            Text("完成时间").textTitleStyle()
             completionStatusText
         }
     }
     
     private var actualFinishTimeText: some View {
-        let decomposed = todo.actualFinishTime.decomposed
+        let d = todo.actualFinishTime.decomposed
         return HStack {
-            if decomposed.days > 0 {
-                Text("\(decomposed.days)天").textTimeStyle()
-            }
-            if decomposed.hours > 0 {
-                Text("\(decomposed.hours)时").textTimeStyle()
-            }
-            if decomposed.minutes > 0 {
-                Text("\(decomposed.minutes)分").textTimeStyle()
-            }
+            if d.days > 0 { Text("\(d.days)天").textTimeStyle() }
+            if d.hours > 0 { Text("\(d.hours)时").textTimeStyle() }
+            if d.minutes > 0 { Text("\(d.minutes)分").textTimeStyle() }
         }
     }
     
@@ -173,10 +215,8 @@ struct TodoCardView: View {
     private var completionStatusText: some View {
         let needTime = TimeInterval.from(days: todo.Day, hours: todo.Hour, minutes: todo.Min)
         let timeLeft = todo.endDate.timeIntervalSince1970 - todo.doneDate.timeIntervalSince1970
-        
         if timeLeft - needTime > 0 {
-            Text("\(todo.doneDate.localizedDateStringWithoutYear) \(todo.doneDate.timeString)")
-                .textTimeStyle()
+            Text("\(todo.doneDate.localizedDateStringWithoutYear) \(todo.doneDate.timeString)").textTimeStyle()
         } else if timeLeft <= 0 {
             Text("已截止").textEndDateStyle()
         } else {
@@ -184,24 +224,16 @@ struct TodoCardView: View {
         }
     }
     
-    // MARK: - Active Status
-    
     private var activeStatusView: some View {
         VStack(alignment: .trailing) {
-            Text("剩余所需时间")
-                .textTitleStyle()
+            Text("剩余所需时间").textTitleStyle()
             remainingTimeText
-            
             Spacer()
-            
             if todo.doing {
-                Text("正在进行")
-                    .textTitleStyle()
-                Text("剩余\(formattedLeftTime)")
-                    .textTimeStyle()
+                Text("正在进行").textTitleStyle()
+                Text("剩余\(formattedLeftTime)").textTimeStyle()
             } else {
-                Text("剩余时间")
-                    .textTitleStyle()
+                Text("剩余时间").textTitleStyle()
                 leftTimeStatusText
             }
         }
@@ -209,54 +241,36 @@ struct TodoCardView: View {
     
     private var remainingTimeText: some View {
         HStack {
-            if todo.Day > 0 {
-                Text("\(todo.Day)天").textTimeStyle()
-            }
-            if todo.Hour > 0 {
-                Text("\(todo.Hour)时").textTimeStyle()
-            }
-            if todo.Min > 0 {
-                Text("\(todo.Min)分").textTimeStyle()
-            }
+            if todo.Day > 0 { Text("\(todo.Day)天").textTimeStyle() }
+            if todo.Hour > 0 { Text("\(todo.Hour)时").textTimeStyle() }
+            if todo.Min > 0 { Text("\(todo.Min)分").textTimeStyle() }
         }
     }
     
     @ViewBuilder
     private var leftTimeStatusText: some View {
         let leftTime = todoService.getLeftTime(for: todo)
-        let decomposed = leftTime.decomposed
-        
-        if leftTime <= 0 {
-            Text("已截止").textEndDateStyle()
-        } else if leftTime <= 60 {
-            Text("将截止").textEndDateStyle()
-        } else {
+        let d = leftTime.decomposed
+        if leftTime <= 0 { Text("已截止").textEndDateStyle() }
+        else if leftTime <= 60 { Text("将截止").textEndDateStyle() }
+        else {
             HStack {
-                if decomposed.days > 0 {
-                    Text("\(decomposed.days)天").textTimeStyle()
-                }
-                if decomposed.hours > 0 {
-                    Text("\(decomposed.hours)时").textTimeStyle()
-                }
-                if decomposed.minutes > 0 {
-                    Text("\(decomposed.minutes)分").textTimeStyle()
-                }
+                if d.days > 0 { Text("\(d.days)天").textTimeStyle() }
+                if d.hours > 0 { Text("\(d.hours)时").textTimeStyle() }
+                if d.minutes > 0 { Text("\(d.minutes)分").textTimeStyle() }
             }
         }
     }
     
     private var formattedLeftTime: String {
-        let leftTime = todoService.getLeftTime(for: todo)
-        let decomposed = leftTime.decomposed
+        let d = todoService.getLeftTime(for: todo).decomposed
         var parts: [String] = []
-        if decomposed.days > 0 { parts.append("\(decomposed.days)天") }
-        if decomposed.hours > 0 { parts.append("\(decomposed.hours)时") }
-        if decomposed.minutes > 0 { parts.append("\(decomposed.minutes)分") }
+        if d.days > 0 { parts.append("\(d.days)天") }
+        if d.hours > 0 { parts.append("\(d.hours)时") }
+        if d.minutes > 0 { parts.append("\(d.minutes)分") }
         return parts.joined()
     }
 }
-
-// MARK: - Custom Button Style
 
 struct CardButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {

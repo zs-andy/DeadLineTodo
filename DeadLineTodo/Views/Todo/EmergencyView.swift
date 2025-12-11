@@ -21,7 +21,6 @@ struct EmergencyView: View {
     
     @StateObject private var viewModel = EmergencyViewModel()
     @State private var editTodoIsPresent = false
-    @State private var rowWidth: CGFloat?
     @State private var isShowingDatePicker = false
     @State private var selectedDate = Date()
     @State private var allowToTap = false
@@ -82,27 +81,29 @@ struct EmergencyView: View {
         ZStack {
             HStack {
                 Spacer()
-                actionButtons(at: index).offset(x: -2)
+                actionButtons(at: index)
+                    .offset(x: min(0, todoData[index].offset + 160))
+                    .opacity(Double(-todoData[index].offset) / 160.0)
             }
             
-            ZStack {
-                RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.grayWhite2)
-                TodoCardView(todo: todoData[index], rowWidth: rowWidth ?? 0) {
-                    guard todoData[index].offset == 0 && !viewModel.isDragging else { return }
-                    viewModel.selectedIndex = index
-                    editTodoIsPresent = true
-                }
-                .simultaneousGesture(swipeGesture(at: index))
+            Button(action: {
+                viewModel.selectedIndex = index
+                editTodoIsPresent = true
+            }) {
+                TodoCardView(todo: todoData[index], rowWidth: .zero, onTap: {})
+                    .opacity(0)
+                    .overlay(
+                        GeometryReader { geo in
+                            TodoCardView(todo: todoData[index], rowWidth: geo.size.width, onTap: {})
+                        }
+                    )
+                    .simultaneousGesture(swipeGesture(at: index))
             }
-            .background(GeometryReader { geo in
-                Color.clear.onAppear { rowWidth = geo.size.width }
-                    .onChange(of: geo.size.width) { _, newValue in rowWidth = newValue }
-            })
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .offset(x: todoData[index].offset)
-            .animation(.spring(response: 0.3, dampingFraction: 0.8), value: todoData[index].offset)
         }
         .padding(.top)
+        .id(todoData[index].id)
     }
     
     private func actionButtons(at index: Int) -> some View {
@@ -130,46 +131,31 @@ struct EmergencyView: View {
     }
     
     private func swipeGesture(at index: Int) -> some Gesture {
-        DragGesture()
+        DragGesture(minimumDistance: 20)
             .onChanged { gesture in
-                guard gesture.translation.width < 0 || todoData[index].lastoffset != 0 else { return }
-                
-                viewModel.isDragging = true
-                allowToTap = false
-                
-                let translation = gesture.translation.width
-                let newOffset = todoData[index].lastoffset + translation
-                
-                let maxOffset: CGFloat = -155
-                if newOffset < maxOffset {
-                    let excess = maxOffset - newOffset
-                    todoData[index].offset = maxOffset - excess * 0.3
-                } else if newOffset > 0 {
-                    todoData[index].offset = newOffset * 0.3
-                } else {
-                    todoData[index].offset = newOffset
+                if gesture.translation.width < 0 || todoData[index].lastoffset != 0 {
+                    allowToTap = false
+                    withAnimation(.linear(duration: 0.05)) {
+                        todoData[index].offset = todoData[index].lastoffset + gesture.translation.width
+                    }
                 }
             }
             .onEnded { gesture in
-                guard todoData.indices.contains(index) else { return }
-                
-                let velocity = gesture.predictedEndTranslation.width - gesture.translation.width
-                let threshold: CGFloat = 60  // 增加阈值，减少误触
-                
-                if todoData[index].offset <= -threshold || velocity < -150 {
-                    todoData[index].offset = -155
-                    todoData[index].lastoffset = -155
-                    allowToTap = true
-                    
-                    let generator = UIImpactFeedbackGenerator(style: .medium)
-                    generator.impactOccurred()
-                } else {
-                    todoData[index].offset = 0
-                    todoData[index].lastoffset = 0
-                }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                    viewModel.isDragging = false
+                if todoData.indices.contains(index) {
+                    if todoData[index].offset <= -70 {
+                        withAnimation(.smooth(duration: 0.4)) {
+                            if todoData.indices.contains(index) {
+                                todoData[index].offset = -160
+                                todoData[index].lastoffset = -160
+                            }
+                            allowToTap = true
+                        }
+                    } else {
+                        withAnimation(.smooth(duration: 0.4)) {
+                            todoData[index].offset = 0
+                            todoData[index].lastoffset = 0
+                        }
+                    }
                 }
             }
     }
@@ -218,6 +204,5 @@ struct EmergencyView: View {
 extension EmergencyView {
     @MainActor final class EmergencyViewModel: ObservableObject {
         @Published var selectedIndex = 0
-        @Published var isDragging = false
     }
 }
