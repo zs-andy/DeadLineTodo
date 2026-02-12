@@ -86,10 +86,8 @@ struct TodoListView: View {
                     TipView(addFirstTaskTip).padding(.horizontal)
                     TipView(addTaskTip).padding(.horizontal)
                     
-                    ForEach(todoData.indices, id: \.self) { index in
-                        if todoData.indices.contains(index) {
-                            todoRow(at: index)
-                        }
+                    ForEach(todoData, id: \.id) { todo in
+                        todoRow(for: todo)
                     }
                     .padding(.horizontal)
                 }
@@ -98,8 +96,8 @@ struct TodoListView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .fullScreenCover(isPresented: $editTodoIsPresent) {
-            if todoData.indices.contains(viewModel.selectedIndex) {
-                EditTodoView(isPresented: $editTodoIsPresent, todo: todoData[viewModel.selectedIndex])
+            if let selectedTodo = todoData.first(where: { $0.id == viewModel.selectedTodoId }) {
+                EditTodoView(isPresented: $editTodoIsPresent, todo: selectedTodo)
             } else {
                 Text("无效的待办事项")
             }
@@ -116,74 +114,74 @@ struct TodoListView: View {
     
     // MARK: - Todo Row
     
-    private func todoRow(at index: Int) -> some View {
+    private func todoRow(for todo: TodoData) -> some View {
         ZStack {
             // 滑动操作按钮
             HStack {
                 Spacer()
-                actionButtons(at: index)
-                    .offset(x: min(0, todoData[index].offset + 160))
-                    .opacity(Double(-todoData[index].offset) / 160.0)
+                actionButtons(for: todo)
+                    .offset(x: min(0, todo.offset + 160))
+                    .opacity(Double(-todo.offset) / 160.0)
             }
             
             // 卡片
             Button(action: {
-                viewModel.selectedIndex = index
+                viewModel.selectedTodoId = todo.id
                 editTodoIsPresent = true
             }) {
-                TodoCardView(todo: todoData[index], rowWidth: .zero, onTap: {})
+                TodoCardView(todo: todo, rowWidth: .zero, onTap: {})
                     .opacity(0)
                     .overlay(
                         GeometryReader { geo in
                             TodoCardView(
-                                todo: todoData[index],
+                                todo: todo,
                                 rowWidth: geo.size.width,
                                 onTap: {}
                             )
                         }
                     )
-                    .simultaneousGesture(swipeGesture(at: index))
+                    .simultaneousGesture(swipeGesture(for: todo))
             }
             .clipShape(RoundedRectangle(cornerRadius: 20))
-            .offset(x: todoData[index].offset)
+            .offset(x: todo.offset)
         }
         .padding(.top)
-        .id(todoData[index].id) // 使用稳定的 ID
+        .id(todo.id) // 使用稳定的 ID
     }
 
     // MARK: - Action Buttons
     
-    private func actionButtons(at index: Int) -> some View {
+    private func actionButtons(for todo: TodoData) -> some View {
         HStack {
             Spacer()
             
             // 删除按钮
             Button {
-                deleteTodo(at: index)
+                deleteTodo(todo)
             } label: {
                 actionButtonIcon(systemName: "trash", color: .red)
             }
             
             // 开始/暂停按钮
             Button {
-                toggleDoing(at: index)
+                toggleDoing(todo)
             } label: {
                 actionButtonIcon(
-                    systemName: todoData[index].doing ? "pause.circle" : "restart.circle",
+                    systemName: todo.doing ? "pause.circle" : "restart.circle",
                     color: Color.blackBlue2
                 )
             }
             
             // 完成按钮
             Button {
-                completeTodo(at: index)
+                completeTodo(todo)
             } label: {
                 actionButtonIcon(systemName: "checkmark.circle", color: Color.blackBlue2)
             }
             .contextMenu {
                 Button {
                     isShowingDatePicker = true
-                    viewModel.selectedIndex = index
+                    viewModel.selectedTodoId = todo.id
                 } label: {
                     Label("选择日期和时间", systemImage: "calendar")
                 }
@@ -207,34 +205,30 @@ struct TodoListView: View {
     
     // MARK: - Swipe Gesture
     
-    private func swipeGesture(at index: Int) -> some Gesture {
+    private func swipeGesture(for todo: TodoData) -> some Gesture {
         DragGesture(minimumDistance: 20)
             .onChanged { gesture in
-                if gesture.translation.width < 0 || todoData[index].lastoffset != 0 {
+                if gesture.translation.width < 0 || todo.lastoffset != 0 {
                     allowToTap = false
                     withAnimation(.linear(duration: 0.05)) {
-                        todoData[index].offset = todoData[index].lastoffset + gesture.translation.width
+                        todo.offset = todo.lastoffset + gesture.translation.width
                     }
                 }
             }
             .onEnded { gesture in
-                if todoData.indices.contains(index) {
-                    if todoData[index].offset <= -70 {
-                        withAnimation(.smooth(duration: 0.4)) {
-                            if todoData.indices.contains(index) {
-                                todoData[index].offset = -160
-                                todoData[index].lastoffset = -160
-                            }
-                            allowToTap = true
-                        }
-                    } else {
-                        withAnimation(.smooth(duration: 0.4)) {
-                            todoData[index].offset = 0
-                            todoData[index].lastoffset = 0
-                        }
+                if todo.offset <= -70 {
+                    withAnimation(.smooth(duration: 0.4)) {
+                        todo.offset = -160
+                        todo.lastoffset = -160
+                        allowToTap = true
                     }
-                    editTodoIsPresent = false
+                } else {
+                    withAnimation(.smooth(duration: 0.4)) {
+                        todo.offset = 0
+                        todo.lastoffset = 0
+                    }
                 }
+                editTodoIsPresent = false
             }
     }
     
@@ -247,8 +241,8 @@ struct TodoListView: View {
                 .padding()
             
             Button("确定") {
-                if todoData.indices.contains(viewModel.selectedIndex) {
-                    completeTodo(at: viewModel.selectedIndex, doneDate: selectedDate)
+                if let todo = todoData.first(where: { $0.id == viewModel.selectedTodoId }) {
+                    completeTodo(todo, doneDate: selectedDate)
                 }
                 isShowingDatePicker = false
             }
@@ -258,10 +252,9 @@ struct TodoListView: View {
 
     // MARK: - Actions
     
-    private func deleteTodo(at index: Int) {
-        guard todoData.indices.contains(index), allowToTap else { return }
+    private func deleteTodo(_ todo: TodoData) {
+        guard allowToTap else { return }
         
-        let todo = todoData[index]
         notificationService.cancelAllNotifications(for: todo)
         reminderService.removeReminder(todoId: todo.id, title: todo.content)
         calendarService.deleteEvent(todoId: todo.id, title: todo.content)
@@ -271,10 +264,9 @@ struct TodoListView: View {
         WidgetCenter.shared.reloadAllTimelines()
     }
     
-    private func toggleDoing(at index: Int) {
-        guard todoData.indices.contains(index), allowToTap else { return }
+    private func toggleDoing(_ todo: TodoData) {
+        guard allowToTap else { return }
         
-        let todo = todoData[index]
         guard todo.addDate <= Date() else {
             isAddDateAlertPresent = true
             return
@@ -285,10 +277,9 @@ struct TodoListView: View {
         }
     }
     
-    private func completeTodo(at index: Int, doneDate: Date = Date()) {
-        guard todoData.indices.contains(index), allowToTap else { return }
+    private func completeTodo(_ todo: TodoData, doneDate: Date = Date()) {
+        guard allowToTap else { return }
         
-        let todo = todoData[index]
         guard todo.addDate <= Date() else {
             isAddDateAlertPresent = true
             return
@@ -327,6 +318,6 @@ struct TodoListView: View {
 extension TodoListView {
     @MainActor
     final class TodoListViewModel: ObservableObject {
-        @Published var selectedIndex = 0
+        @Published var selectedTodoId: UUID?
     }
 }
